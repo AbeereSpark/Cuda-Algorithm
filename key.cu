@@ -1,16 +1,34 @@
 #include <iostream>
-#include <fstream> 
+#include <fstream>
 #include <sstream>
 #include <vector>
 #include <gmpxx.h>
 
-// Helper function to perform addition or subtraction
-void performOperation(mpz_class& publicKey, const mpz_class& operand, char operation) {
-    if (operation == 'A') {
-        publicKey += operand;
-    } else if (operation == 'S') {
-        publicKey -= operand;
+// CUDA kernel for performing addition or subtraction on the GPU
+__global__ void performOperationKernel(mpz_class* publicKey, const mpz_class operand, char operation, int size) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < size) {
+        if (operation == 'A') {
+            publicKey[tid] += operand;
+        } else if (operation == 'S') {
+            publicKey[tid] -= operand;
+        }
     }
+}
+
+// Helper function to perform addition or subtraction on the GPU
+void performOperationGPU(mpz_class* publicKey, const mpz_class operand, char operation, int size) {
+    mpz_class* d_publicKey;
+    cudaMalloc((void**)&d_publicKey, size * sizeof(mpz_class));
+    cudaMemcpy(d_publicKey, publicKey, size * sizeof(mpz_class), cudaMemcpyHostToDevice);
+
+    int blockSize = 256;
+    int gridSize = (size + blockSize - 1) / blockSize;
+
+    performOperationKernel<<<gridSize, blockSize>>>(d_publicKey, operand, operation, size);
+
+    cudaMemcpy(publicKey, d_publicKey, size * sizeof(mpz_class), cudaMemcpyDeviceToHost);
+    cudaFree(d_publicKey);
 }
 
 struct KeyPair {
@@ -58,7 +76,6 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename) {
     return keyPairs;
 }
 
-
 // Helper function to save the matched public key, iteration count, and result to a file
 void saveMatchToFile(const std::string& matchFile, int iteration, const std::string& publicKey, const std::string& result) {
     std::ofstream file(matchFile, std::ios::app);
@@ -91,8 +108,8 @@ int main(int argc, char* argv[]) {
     for (int iteration = 1; iteration <= numIterations && !matchFound; ++iteration) {
         std::cout << "Iteration Count: " << iteration << std::endl;
 
-        // Perform the specified operation
-        performOperation(publicKey, operand, operationType);
+        // Perform the specified operation on GPU
+        performOperationGPU(&publicKey, operand, operationType, 1);
 
         // Display the result
         std::cout << "Result: " << publicKey.get_str(16) << std::endl;
@@ -110,7 +127,6 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-
 
     return 0;
 }
