@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream> 
+#include <sstream>
+#include <vector>
 #include <gmpxx.h>
 
 // Helper function to perform addition or subtraction
