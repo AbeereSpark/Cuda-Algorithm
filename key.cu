@@ -81,8 +81,7 @@ int main(int argc, char* argv[]) {
     int numIterations = std::stoi(argv[4]);
     const std::string matchFile = argv[5];
 
-    std::cout << "Enter the public key: " << publicKey.get_str(16) << std::endl;
-    std::cout << "Choose between addition or subtraction: " << std::endl;
+    std::cout << "Entered public key: " << publicKey.get_str(16) << std::endl;
 
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
