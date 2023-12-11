@@ -1,7 +1,7 @@
 CC = nvcc
 CFLAGS = -lgmp -lgmpxx
-TARGET = keymath
-SOURCE = keymath.cu
+TARGET = key
+SOURCE = key.cu
 KEY = 023ae2be219c5b30277db2c1da0bd781474ba8fd9fe3079a3acbaca16775d63de9
 FILENAME = FOUND.txt
 
