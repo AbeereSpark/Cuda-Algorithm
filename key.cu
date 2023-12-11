@@ -13,20 +13,52 @@ void performOperation(mpz_class& publicKey, const mpz_class& operand, char opera
     }
 }
 
-// Helper function to read public keys from a file
-std::vector<std::string> readPublicKeys(const std::string& filename) {
-    std::vector<std::string> publicKeys;
+struct KeyPair {
+    mpz_class private_key;
+    mpz_class public_key;
+};
+
+// Helper function to read key pairs from a file
+std::vector<KeyPair> readKeyPairs(const std::string& filename) 
+{
+    std::vector<KeyPair> keyPairs;
     std::ifstream file(filename);
 
-    if (file.is_open()) {
+    if (file.is_open()) 
+    {
         std::string line;
-        while (std::getline(file, line)) {
-            publicKeys.push_back(line);
+        while (std::getline(file, line)) 
+        {
+            std::istringstream iss(line);
+            std::string token;
+            KeyPair keyPair;
+
+            // Read Private_k label
+            iss >> token;  // Read the label
+            if (token != "Private_k:") {
+                // Handle error or skip line
+                continue;
+            }
+
+            // Read private key
+            iss >> keyPair.private_key;
+
+            // Read Public_k label
+            iss >> token;  // Read the label
+            if (token != "Public_k:") {
+                // Handle error or skip line
+                continue;
+            }
+
+            // Read public key
+            iss >> keyPair.public_key;
+
+            keyPairs.push_back(keyPair);
         }
         file.close();
     }
 
-    return publicKeys;
+    return keyPairs;
 }
 
 // Helper function to save the matched public key, iteration count, and result to a file
@@ -54,8 +86,8 @@ int main(int argc, char* argv[]) {
     std::cout << "Enter the public key: " << publicKey.get_str(16) << std::endl;
     std::cout << "Choose between addition or subtraction: " << std::endl;
 
-    // Read public keys from bot.txt
-    std::vector<std::string> botPublicKeys = readPublicKeys("bot.txt");
+    // Read key pairs from bot.txt
+    std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
 
     bool matchFound = false;
 
@@ -69,10 +101,10 @@ int main(int argc, char* argv[]) {
         std::cout << "Result: " << publicKey.get_str(16) << std::endl;
 
         // Check if the result matches any public keys in bot.txt
-        for (const std::string& botPublicKey : botPublicKeys) {
-            if (publicKey.get_str(16) == botPublicKey) {
+        for (const KeyPair& botKeyPair : botKeyPairs) {
+            if (publicKey == botKeyPair.public_key) {
                 // Match found, save the information to matchFile
-                saveMatchToFile(matchFile, iteration, botPublicKey, publicKey.get_str(16));
+                saveMatchToFile(matchFile, iteration, botKeyPair.public_key.get_str(16), publicKey.get_str(16));
                 std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
 
                 // Set the flag to true to exit both loops
