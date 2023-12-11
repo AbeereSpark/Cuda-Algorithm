@@ -11,10 +11,10 @@ $(TARGET): $(SOURCE)
 	$(CC) -o $(TARGET) $(SOURCE) $(CFLAGS)
 
 run_add: $(TARGET)
-	nvprof ./$(TARGET) $(KEY) $(value) A $(ITERATIONS) $(FILENAME)
+	ncu ./$(TARGET) $(KEY) $(value) A $(ITERATIONS) $(FILENAME)
 
 run_sub: $(TARGET)
-	nvprof ./$(TARGET) $(KEY) $(value) S $(ITERATIONS) $(FILENAME)
+	ncu ./$(TARGET) $(KEY) $(value) S $(ITERATIONS) $(FILENAME)
 
 clean:
 	rm -f $(TARGET)
