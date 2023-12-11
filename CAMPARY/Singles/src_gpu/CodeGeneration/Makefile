@@ -5,7 +5,7 @@ PROGRAMS = genOperations
 #========= the following commands should work on most Unix systems ========
 
 # The main CUDA root path
-CUDA_PATH = /usr/local/cuda-7.5
+CUDA_PATH = /usr/local/cuda-11.8
 
 # The Name of the C++/CUDA compiler
 CXX=g++
