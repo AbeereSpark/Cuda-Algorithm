@@ -45,7 +45,7 @@ default:
 all: $(PROGRAMS)
 
 genOperations: genOperations.cpp
-	$(CXX) -lglut -O2 -g -o $@ $@.cpp 
+	$(CXX) -lglut --verbose -O2 -g -o $@ $@.cpp 
 	
 .PHONY: default all
 
