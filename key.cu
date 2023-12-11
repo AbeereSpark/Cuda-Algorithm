@@ -89,6 +89,12 @@ int main(int argc, char* argv[]) {
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
 
+    // Display private and public keys from botKeyPairs
+    for (const KeyPair& keyPair : botKeyPairs) {
+        std::cout << "Private Key: " << keyPair.private_key.get_str(16) << std::endl;
+        std::cout << "Public Key: " << keyPair.public_key.get_str(16) << std::endl;
+    }
+
     bool matchFound = false;
 
     for (int iteration = 1; iteration <= numIterations && !matchFound; ++iteration) {
