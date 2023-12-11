@@ -11,10 +11,10 @@ $(TARGET): $(SOURCE)
 	$(CC) -o $(TARGET) $(SOURCE) $(CFLAGS)
 
 run_add: $(TARGET)
-	./$(TARGET) $(KEY) A $(value) $(ITERATIONS) $(FILENAME)
+	./$(TARGET) $(KEY) $(value) A $(ITERATIONS) $(FILENAME)
 
 run_sub: $(TARGET)
-	./$(TARGET) $(KEY) S $(value) $(ITERATIONS) $(FILENAME)
+	./$(TARGET) $(KEY) $(value) S $(ITERATIONS) $(FILENAME)
 
 clean:
 	rm -f $(TARGET)
