@@ -2,7 +2,7 @@ CC = nvcc
 CFLAGS = -lgmp -lgmpxx
 TARGET = key
 SOURCE = key.cu
-KEY = 023ae2be219c5b30277db2c1da0bd781474ba8fd9fe3079a3acbaca16775d63de9
+KEY = 02b968ca5555330e4fc778efb2af7d9de81c860002dab90d247b0329c3071cc221
 FILENAME = FOUND.txt
 
 all: $(TARGET)
