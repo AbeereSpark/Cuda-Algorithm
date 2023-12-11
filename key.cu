@@ -35,7 +35,6 @@ void saveMatchToFile(const std::string& matchFile, int iteration, const std::str
     if (file.is_open()) {
         file << "Iteration Count: " << iteration << std::endl;
         file << "Matched Public Key: [" << publicKey << "]" << std::endl;
-        file << "Result: " << result << std::endl << std::endl;
         file.close();
     }
 }
@@ -58,7 +57,9 @@ int main(int argc, char* argv[]) {
     // Read public keys from bot.txt
     std::vector<std::string> botPublicKeys = readPublicKeys("bot.txt");
 
-    for (int iteration = 1; iteration <= numIterations; ++iteration) {
+    bool matchFound = false;
+
+    for (int iteration = 1; iteration <= numIterations && !matchFound; ++iteration) {
         std::cout << "Iteration Count: " << iteration << std::endl;
 
         // Perform the specified operation
@@ -69,15 +70,18 @@ int main(int argc, char* argv[]) {
 
         // Check if the result matches any public keys in bot.txt
         for (const std::string& botPublicKey : botPublicKeys) {
-            if (publicKey.get_str(16) == botPublicKey) 
-            {
+            if (publicKey.get_str(16) == botPublicKey) {
                 // Match found, save the information to matchFile
                 saveMatchToFile(matchFile, iteration, botPublicKey, publicKey.get_str(16));
-                std::cout << "Match found at Iteration " << iteration << std::endl;
-                // Optionally, you may choose to exit the loop or program here
+                std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+
+                // Set the flag to true to exit both loops
+                matchFound = true;
+                break;
             }
         }
     }
+
 
     return 0;
 }
