@@ -19,16 +19,13 @@ struct KeyPair {
 };
 
 // Helper function to read key pairs from a file
-std::vector<KeyPair> readKeyPairs(const std::string& filename) 
-{
+std::vector<KeyPair> readKeyPairs(const std::string& filename) {
     std::vector<KeyPair> keyPairs;
     std::ifstream file(filename);
 
-    if (file.is_open()) 
-    {
+    if (file.is_open()) {
         std::string line;
-        while (std::getline(file, line)) 
-        {
+        while (std::getline(file, line)) {
             std::istringstream iss(line);
             std::string token;
             KeyPair keyPair;
@@ -40,8 +37,8 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename)
                 continue;
             }
 
-            // Read private key
-            iss >> keyPair.private_key;
+            // Read private key (in hexadecimal format)
+            iss >> std::hex >> keyPair.private_key;
 
             // Read Public_k label
             iss >> token;  // Read the label
@@ -50,8 +47,8 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename)
                 continue;
             }
 
-            // Read public key
-            iss >> keyPair.public_key;
+            // Read public key (in hexadecimal format)
+            iss >> std::hex >> keyPair.public_key;
 
             keyPairs.push_back(keyPair);
         }
@@ -60,6 +57,7 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename)
 
     return keyPairs;
 }
+
 
 // Helper function to save the matched public key, iteration count, and result to a file
 void saveMatchToFile(const std::string& matchFile, int iteration, const std::string& publicKey, const std::string& result) {
