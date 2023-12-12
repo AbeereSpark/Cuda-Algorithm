@@ -95,7 +95,7 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename) {
 
 
 // Helper function to save the matched public key, iteration count, and result to a file
-void saveMatchToFile(const std::string& matchFile, int iteration, const std::string& publicKey, const std::string& result) {
+void saveMatchToFile(const std::string& matchFile, int iteration, const std::string& publicKey) {
     std::ofstream file(matchFile, std::ios::app);
     if (file.is_open()) {
         file << "Iteration Count: " << iteration << std::endl;
@@ -248,25 +248,8 @@ int main(int argc, char* argv[]) {
 
         if (matchFound) {
             std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
-            // break;
+            saveMatchToFile(matchFile, iteration, cgbnMemToString(publicKey), cgbnMemToString(publicKey));
         }
-        // for (KeyPair& botKeyPair : botKeyPairs) {
-        //     // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
-        //     cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
-
-        //     // Use the compare_words function to compare the entire arrays
-        //     int comparisonResult = compare_words(publicKey._limbs, botPublicKey._limbs, BITS / 32);
-
-        //     if (comparisonResult == 0) {
-        //         // Match found, save the information to matchFile
-        //         saveMatchToFile(matchFile, iteration, cgbnMemToString(botKeyPair.public_key), cgbnMemToString(publicKey));
-        //         std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
-
-        //         // Set the flag to true to exit both loops
-        //         matchFound = true;
-        //         break;
-        //     }
-        // }
     }
 
 
