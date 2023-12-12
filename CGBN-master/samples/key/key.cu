@@ -15,7 +15,6 @@
 #define BITS 1024
 #define INSTANCES 100
 
-template<size_t BITS>
 void printCgbnMem(const cgbn_mem_t<BITS>& value) {
     std::cout << "0x";
     for (int i = BITS / 32 - 1; i >= 0; --i) {
