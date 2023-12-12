@@ -4,7 +4,9 @@
 #include <fstream> 
 #include <sstream>
 #include <vector>
+#include <gmpxx.h>
 #include <cuda.h>
+#include <gmp.h>
 #include "cgbn/cgbn.h"
 #include "../utility/cpu_support.h"
 #include "../utility/cpu_simple_bn_math.h"
