@@ -10,6 +10,11 @@
 #include "../utility/cpu_simple_bn_math.h"
 #include "../utility/gpu_support.h"
 
+// IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
+#define TPI 32
+#define BITS 1024
+#define INSTANCES 100
+
 // Helper function to perform addition or subtraction
 void performOperation(cgbn_mem_t<BITS>& publicKey, const cgbn_mem_t<BITS>& operand, char operation) {
     cgbn_mem_t<BITS> b;
