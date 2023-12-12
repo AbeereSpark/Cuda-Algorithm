@@ -13,7 +13,7 @@
 #include "../utility/gpu_support.h"
 
 // IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
-#define TPI 1
+#define TPI 32
 #define BITS (33 * 8)
 #define INSTANCES 100
 
@@ -213,7 +213,7 @@ int main(int argc, char* argv[]) {
 
         if (matchFound) {
             std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
-            break;
+            // break;
         }
         // for (KeyPair& botKeyPair : botKeyPairs) {
         //     // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
