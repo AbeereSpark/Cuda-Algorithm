@@ -16,6 +16,7 @@ pick:
 	@echo "   make volta"
 	@echo "   make turing"
 	@echo "   make ampere"
+	@echo "   make ada"
 	@echo
 
 clean:
@@ -45,3 +46,6 @@ ampere:
 	nvcc $(INC) $(LIB) -I../../include -arch=sm_80 modinv_odd.cu -o mo -lgmp
 	nvcc $(INC) $(LIB) -I../../include -arch=sm_80 modinv_odd_faster.cu -o mo_faster -lgmp
 
+ada: 
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 modinv_odd.cu -o mo -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 modinv_odd_faster.cu -o mo_faster -lgmp

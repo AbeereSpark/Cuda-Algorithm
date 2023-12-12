@@ -18,8 +18,8 @@ clean:
 
 download-gtest:
 	wget 'https://github.com/google/googletest/archive/master.zip' -O googletest-master.zip
-	unzip googletest-master.zip 'googletest-master/googletest/*'
-	mv googletest-master/googletest gtest
+	unzip googletest-master.zip 'googletest-main/googletest/*'
+	mv googletest-main/googletest gtest
 	rmdir googletest-master
 	rm -f googletest-master.zip
 
@@ -52,6 +52,11 @@ ampere: check
 	make -C samples ampere
 	make -C unit_tests ampere
 	make -C perf_tests ampere
+
+ada: check
+	make -C samples ada
+	make -C unit_tests ada
+	make -C perf_tests ada
 
 check:
 	@if [ -z "$(GTEST_HOME)" -a ! -d "gtest" ]; then echo "Google Test framework required, see documentation"; exit 1; fi

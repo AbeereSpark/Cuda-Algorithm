@@ -18,6 +18,7 @@ pick:
 	@echo "   make volta"
 	@echo "   make turing"
 	@echo "   make ampere"
+	@echo "   make ada"
 	@echo
 
 clean:
@@ -42,6 +43,7 @@ xmp_tester:
 	@echo "   make maxwell"
 	@echo "   make pascal"
 	@echo "   make volta"
+	@echo "   make ada"
 	@echo
 	@exit 0
 
@@ -63,4 +65,7 @@ turing:
 
 ampere:
 	nvcc $(INC) $(LIB) -I../include -arch=sm_80 xmp_tester.cu -o xmp_tester -lgmp
+
+ada:
+	nvcc $(INC) $(LIB) -I../include -arch=sm_89 xmp_tester.cu -o xmp_tester -lgmp
 
