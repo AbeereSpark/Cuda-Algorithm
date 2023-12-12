@@ -11,6 +11,7 @@
 #include "../utility/cpu_support.h"
 #include "../utility/cpu_simple_bn_math.h"
 #include "../utility/gpu_support.h"
+#include <cuda_runtime.h>
 
 // IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
 #define TPI 32
@@ -170,10 +171,47 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     return matchFound;
 }
 
+bool checkCudaAvailability() {
+    int deviceCount;
+    cudaError_t cudaStatus = cudaGetDeviceCount(&deviceCount);
+
+    if (cudaStatus != cudaSuccess) {
+        std::cerr << "Error getting device count: " << cudaGetErrorString(cudaStatus) << std::endl;
+        return false;
+    }
+
+    if (deviceCount == 0) {
+        std::cerr << "No CUDA-enabled GPU device found." << std::endl;
+        return false;
+    }
+
+    std::cout << "Found " << deviceCount << " CUDA-enabled GPU device(s)." << std::endl;
+
+    // You can also print more information about each device if needed
+    for (int i = 0; i < deviceCount; ++i) {
+        cudaDeviceProp deviceProp;
+        cudaGetDeviceProperties(&deviceProp, i);
+
+        std::cout << "Device " << i << ": " << deviceProp.name << std::endl;
+        // Print more properties if needed
+    }
+
+    return true;
+}
+
 int main(int argc, char* argv[]) {
+    
     if (argc != 6) {
         std::cerr << "Usage: " << argv[0] << " <public_key> <operation_value> <operation_type(A/S)> <num_iterations> <match_file>\n";
         return 1;
+    }
+
+    if (checkCudaAvailability()) {
+        // Perform GPU-related tasks here
+        std::cout << "GPU is available. Proceed with GPU-related tasks." << std::endl;
+    } else {
+        // Perform CPU-only tasks here
+        std::cout << "No GPU available. Proceed with CPU-only tasks." << std::endl;
     }
 
     // Read the public key as a string and convert to cgbn_mem_t
