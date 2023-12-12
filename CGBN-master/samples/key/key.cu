@@ -17,15 +17,13 @@
 
 // Helper function to perform addition or subtraction
 void performOperation(cgbn_mem_t<BITS>& publicKey, const cgbn_mem_t<BITS>& operand, char operation) {
-    cgbn_mem_t<BITS> b;
-    set_words(b._limbs, "1", BITS/32);
-
+    
     if (operation == 'A') {
-        add_words(correct, publicKey.a._limbs, b._limbs, BITS/32);
+        add_words(publicKey._limbs, publicKey._limbs, operand._limbs, BITS/32);
         // publicKey += operand;
     } else if (operation == 'S') {
         // publicKey -= operand;
-        sub_words(correct, publicKey.a._limbs, b._limbs, BITS/32);
+        sub_words(publicKey._limbs, publicKey._limbs, operand._limbs, BITS/32);
     }
 }
 
