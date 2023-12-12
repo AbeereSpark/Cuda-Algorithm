@@ -16,8 +16,8 @@
 #define INSTANCES 100
 
 // Helper function to perform addition or subtraction
-void performOperation(cgbn_mem_t<BITS>& publicKey, const cgbn_mem_t<BITS>& operand, char operation) {
-    
+void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, char operation) {
+
     if (operation == 'A') {
         add_words(publicKey._limbs, publicKey._limbs, operand._limbs, BITS/32);
         // publicKey += operand;
