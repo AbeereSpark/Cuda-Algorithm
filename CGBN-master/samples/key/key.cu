@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
         std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
 
         // Check if the result matches any public keys in bot.txt
-        for (const KeyPair& botKeyPair : botKeyPairs) {
+        for (KeyPair& botKeyPair : botKeyPairs) {
             // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
             cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
 
