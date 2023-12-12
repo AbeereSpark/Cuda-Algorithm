@@ -107,11 +107,19 @@ void saveMatchToFile(const std::string& matchFile, int iteration, const std::str
 __global__ void kernel_compare(cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
     int tid = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
-    if ((tid < numResults) && !(*matchFound)) {
+    if ((tid < numResults) && !(*matchFound)) 
+    {
         cgbn_mem_t<BITS> publicKey = results[0];
         cgbn_mem_t<BITS>& botPublicKey = botKeyPairs[tid].public_key;
 
-        int comparisonResult = compare_words(publicKey._limbs, botPublicKey._limbs, BITS / 32);
+        context_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
+        env_t          bn_env(bn_context.env<env_t>());                     // construct an environment for 1024-bit math
+        env_t::cgbn_t  a, b;                                             // define a, b, r as 1024-bit bignums
+
+        cgbn_load(bn_env, a, &publicKey);      // load my instance's a value
+        cgbn_load(bn_env, b, &botPublicKey);      // load my instance's b value
+
+        int comparisonResult = cgbn_equals(bn_env, a, b);
 
         if (comparisonResult == 0) {
             // Match found, save the information to matchFile
