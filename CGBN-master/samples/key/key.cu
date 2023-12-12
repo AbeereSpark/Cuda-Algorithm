@@ -17,6 +17,10 @@
 #define BITS (33 * 8)
 #define INSTANCES 100
 
+// helpful typedefs for the kernel
+typedef cgbn_context_t<TPI>         context_t;
+typedef cgbn_env_t<context_t, BITS> env_t;
+
 struct KeyPair {
     cgbn_mem_t<BITS> private_key;
     cgbn_mem_t<BITS> public_key;
@@ -101,9 +105,9 @@ void saveMatchToFile(const std::string& matchFile, int iteration, const std::str
 
 // GPU kernel for comparing results in parallel
 __global__ void kernel_compare(cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int tid = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
-    if (tid < numResults && !(*matchFound)) {
+    if ((tid < numResults) && !(*matchFound)) {
         cgbn_mem_t<BITS> publicKey = results[0];
         cgbn_mem_t<BITS>& botPublicKey = botKeyPairs[tid].public_key;
 
@@ -139,9 +143,9 @@ void performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     int numResults = botKeyPairs.size();
 
     // Launch the GPU kernel
-    int block_size = 128;
+    int block_size = 4;
     int num_blocks = (numResults + block_size - 1) / block_size;
-    kernel_compare<<<num_blocks, block_size>>>(d_results, d_botKeyPairs, numResults, matchFile, d_matchFound);
+    kernel_compare<<<num_blocks, block_size * TPI>>>(d_results, d_botKeyPairs, numResults, matchFile, d_matchFound);
 
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
