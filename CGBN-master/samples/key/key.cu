@@ -104,13 +104,13 @@ void saveMatchToFile(const std::string& matchFile, int iteration, const std::str
 }
 
 // GPU kernel for comparing results in parallel
-__global__ void kernel_compare(cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
-    int tid = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
+__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
+    int instance = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
-    if ((tid < numResults) && !(*matchFound)) 
+    if ((instance < numResults) && !(*matchFound)) 
     {
         cgbn_mem_t<BITS> publicKey = results[0];
-        cgbn_mem_t<BITS>& botPublicKey = botKeyPairs[tid].public_key;
+        cgbn_mem_t<BITS>& botPublicKey = botKeyPairs[instance].public_key;
 
         context_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
         env_t          bn_env(bn_context.env<env_t>());                     // construct an environment for 1024-bit math
@@ -137,6 +137,7 @@ void performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     cgbn_mem_t<BITS>* d_results;
     KeyPair* d_botKeyPairs;
     bool* d_matchFound;
+    cgbn_error_report_t *report;
 
     // Allocate memory on the GPU
     CUDA_CHECK(cudaMalloc((void**)&d_results, 1 * sizeof(cgbn_mem_t<BITS>)));
@@ -147,6 +148,9 @@ void performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     CUDA_CHECK(cudaMemcpy(d_results, h_results, 1 * sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
+
+    // create a cgbn_error_report for CGBN to report back errors
+    CUDA_CHECK(cgbn_error_report_alloc(&report)); 
 
     int numResults = botKeyPairs.size();
 
