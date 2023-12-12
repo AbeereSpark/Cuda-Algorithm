@@ -17,11 +17,11 @@ clean:
 	make -C perf_tests clean
 
 download-gtest:
-	wget 'https://github.com/google/googletest/archive/master.zip' -O googletest-master.zip
+	wget 'https://github.com/google/googletest/archive/master.zip' -O googletest-main.zip
 	unzip googletest-master.zip 'googletest-main/googletest/*'
 	mv googletest-main/googletest gtest
-	rmdir googletest-master
-	rm -f googletest-master.zip
+	rmdir googletest-main
+	rm -f googletest-main.zip
 
 kepler: check
 	make -C samples kepler
