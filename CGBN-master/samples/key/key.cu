@@ -157,7 +157,7 @@ void performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     // Launch the GPU kernel
     int block_size = 4;
     int num_blocks = (numResults + block_size - 1) / block_size;
-    kernel_compare<<<num_blocks, block_size * TPI>>>(d_results, d_botKeyPairs, numResults, matchFile, d_matchFound);
+    kernel_compare<<<num_blocks, block_size * TPI>>>(report, d_results, d_botKeyPairs, numResults, matchFile, d_matchFound);
 
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
