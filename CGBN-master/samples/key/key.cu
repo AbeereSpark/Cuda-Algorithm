@@ -111,7 +111,7 @@ __global__ void kernel_compare(cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, 
 
         if (comparisonResult == 0) {
             // Match found, save the information to matchFile
-            saveMatchToFile(matchFile, tid + 1, cgbnMemToString(botKeyPairs[i].public_key), cgbnMemToString(publicKey));
+            saveMatchToFile(matchFile, tid, cgbnMemToString(publicKey), cgbnMemToString(botKeyPairs[tid].public_key));
             printf("\nMatch found at Result Index %d\n", tid + 1);
         }
     }
