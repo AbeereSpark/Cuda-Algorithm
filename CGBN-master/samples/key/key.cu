@@ -131,7 +131,7 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
 }
 
 // Function to perform GPU comparison
-void performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair>& botKeyPairs, const std::string& matchFile) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair>& botKeyPairs, const std::string& matchFile) {
     bool matchFound = false;  // Variable to control the loop
 
     cgbn_mem_t<BITS>* d_results;
@@ -169,6 +169,8 @@ void performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     CUDA_CHECK(cudaFree(d_results));
     CUDA_CHECK(cudaFree(d_botKeyPairs));
     CUDA_CHECK(cudaFree(d_matchFound));
+
+    return matchFound;
 }
 
 int main(int argc, char* argv[]) {
@@ -207,23 +209,29 @@ int main(int argc, char* argv[]) {
         std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
 
         // Check if the result matches any public keys in bot.txt
-        for (KeyPair& botKeyPair : botKeyPairs) {
-            // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
-            cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
+        matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
 
-            // Use the compare_words function to compare the entire arrays
-            int comparisonResult = compare_words(publicKey._limbs, botPublicKey._limbs, BITS / 32);
-
-            if (comparisonResult == 0) {
-                // Match found, save the information to matchFile
-                saveMatchToFile(matchFile, iteration, cgbnMemToString(botKeyPair.public_key), cgbnMemToString(publicKey));
-                std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
-
-                // Set the flag to true to exit both loops
-                matchFound = true;
-                break;
-            }
+        if (matchFound) {
+            std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+            break;
         }
+        // for (KeyPair& botKeyPair : botKeyPairs) {
+        //     // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
+        //     cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
+
+        //     // Use the compare_words function to compare the entire arrays
+        //     int comparisonResult = compare_words(publicKey._limbs, botPublicKey._limbs, BITS / 32);
+
+        //     if (comparisonResult == 0) {
+        //         // Match found, save the information to matchFile
+        //         saveMatchToFile(matchFile, iteration, cgbnMemToString(botKeyPair.public_key), cgbnMemToString(publicKey));
+        //         std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+
+        //         // Set the flag to true to exit both loops
+        //         matchFound = true;
+        //         break;
+        //     }
+        // }
     }
 
 
