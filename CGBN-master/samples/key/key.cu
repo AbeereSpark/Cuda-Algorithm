@@ -208,13 +208,13 @@ int main(int argc, char* argv[]) {
         // Display the result
         std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
 
-        // // Check if the result matches any public keys in bot.txt
-        // matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
+        // Check if the result matches any public keys in bot.txt
+        matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
 
-        // if (matchFound) {
-        //     std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
-        //     // break;
-        // }
+        if (matchFound) {
+            std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+            // break;
+        }
         // for (KeyPair& botKeyPair : botKeyPairs) {
         //     // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
         //     cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
