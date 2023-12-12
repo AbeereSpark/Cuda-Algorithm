@@ -122,9 +122,6 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
         int comparisonResult = cgbn_equals(bn_env, a, b);
 
         if (comparisonResult) {
-            // Match found, save the information to matchFile
-            // saveMatchToFile(matchFile, tid + 1, cgbnMemToString(publicKey), cgbnMemToString(botKeyPairs[tid].public_key));
-            // printf("\nMatch found at Result Index %d\n", tid + 1);
             *matchFound = true;
         }
     }
