@@ -16,12 +16,14 @@
 #define BITS (33 * 8)
 #define INSTANCES 100
 
-void printCgbnMem(const cgbn_mem_t<BITS>& value) {
-    std::cout << "0x";
+// Function to convert cgbn_mem_t limbs to a hexadecimal string
+std::string cgbnMemToString(const cgbn_mem_t<BITS>& value) {
+    std::stringstream ss;
+    ss << "0x";
     for (int i = BITS / 32 - 1; i >= 0; --i) {
-        std::cout << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
+        ss << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
     }
-    std::cout << std::dec << std::endl;
+    return ss.str();
 }
 
 // Helper function to perform addition or subtraction
@@ -129,20 +131,19 @@ int main(int argc, char* argv[]) {
         performOperation(publicKey, operand, operationType);
 
         // Display the result
-        std::cout << "Result: ";
-        printCgbnMem(publicKey);
+        std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
 
         // Check if the result matches any public keys in bot.txt
         for (const KeyPair& botKeyPair : botKeyPairs) {
             // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
-            const cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
+            cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
 
             // Use the compare_words function to compare the entire arrays
             int comparisonResult = compare_words(publicKey._limbs, botPublicKey._limbs, BITS / 32);
 
             if (comparisonResult == 0) {
                 // Match found, save the information to matchFile
-                saveMatchToFile(matchFile, iteration, botKeyPair.public_key.get_str(16), publicKey.get_str(16));
+                saveMatchToFile(matchFile, iteration, cgbnMemToString(botKeyPair.public_key), cgbnMemToString(publicKey));
                 std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
 
                 // Set the flag to true to exit both loops
