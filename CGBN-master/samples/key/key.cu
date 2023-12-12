@@ -15,6 +15,15 @@
 #define BITS 1024
 #define INSTANCES 100
 
+template<size_t BITS>
+void printCgbnMem(const cgbn_mem_t<BITS>& value) {
+    std::cout << "0x";
+    for (int i = BITS / 32 - 1; i >= 0; --i) {
+        std::cout << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
+    }
+    std::cout << std::dec << std::endl;
+}
+
 // Helper function to perform addition or subtraction
 void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, char operation) {
 
@@ -105,7 +114,8 @@ int main(int argc, char* argv[]) {
     int numIterations = std::stoi(argv[4]);
     const std::string matchFile = argv[5];
 
-    std::cout << "Entered public key: " << publicKey.get_str(16) << std::endl;
+    std::cout << "Entered public key: " << argv[1] << std::endl;
+    std::cout << "Entered operand: " << argv[2] << std::endl;
 
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
@@ -119,20 +129,21 @@ int main(int argc, char* argv[]) {
         performOperation(publicKey, operand, operationType);
 
         // Display the result
-        std::cout << "Result: " << publicKey.get_str(16) << std::endl;
+        std::cout << "Result: ";
+        printCgbnMem(publicKey);
 
         // Check if the result matches any public keys in bot.txt
-        for (const KeyPair& botKeyPair : botKeyPairs) {
-            if (publicKey == botKeyPair.public_key) {
-                // Match found, save the information to matchFile
-                saveMatchToFile(matchFile, iteration, botKeyPair.public_key.get_str(16), publicKey.get_str(16));
-                std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+        // for (const KeyPair& botKeyPair : botKeyPairs) {
+        //     if (publicKey == botKeyPair.public_key) {
+        //         // Match found, save the information to matchFile
+        //         saveMatchToFile(matchFile, iteration, botKeyPair.public_key.get_str(16), publicKey.get_str(16));
+        //         std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
 
-                // Set the flag to true to exit both loops
-                matchFound = true;
-                break;
-            }
-        }
+        //         // Set the flag to true to exit both loops
+        //         matchFound = true;
+        //         break;
+        //     }
+        // }
     }
 
 
