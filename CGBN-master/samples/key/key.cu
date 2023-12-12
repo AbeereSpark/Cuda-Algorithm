@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
     const std::string matchFile = argv[5];
 
     std::cout << "Entered public key: " << argv[1] << std::endl;
-    std::cout << "Entered operand: " << argv[2] << std::endl;
+    std::cout << "Entered operand: " << argv[2] << std::endl << std::endl;
 
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
@@ -133,17 +133,23 @@ int main(int argc, char* argv[]) {
         printCgbnMem(publicKey);
 
         // Check if the result matches any public keys in bot.txt
-        // for (const KeyPair& botKeyPair : botKeyPairs) {
-        //     if (publicKey == botKeyPair.public_key) {
-        //         // Match found, save the information to matchFile
-        //         saveMatchToFile(matchFile, iteration, botKeyPair.public_key.get_str(16), publicKey.get_str(16));
-        //         std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+        for (const KeyPair& botKeyPair : botKeyPairs) {
+            // Assuming that KeyPair's public_key is a cgbn_mem_t<BITS>
+            const cgbn_mem_t<BITS>& botPublicKey = botKeyPair.public_key;
 
-        //         // Set the flag to true to exit both loops
-        //         matchFound = true;
-        //         break;
-        //     }
-        // }
+            // Use the compare_words function to compare the entire arrays
+            int comparisonResult = compare_words(publicKey._limbs, botPublicKey._limbs, BITS / 32);
+
+            if (comparisonResult == 0) {
+                // Match found, save the information to matchFile
+                saveMatchToFile(matchFile, iteration, botKeyPair.public_key.get_str(16), publicKey.get_str(16));
+                std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
+
+                // Set the flag to true to exit both loops
+                matchFound = true;
+                break;
+            }
+        }
     }
 
 
