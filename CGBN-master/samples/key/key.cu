@@ -157,7 +157,7 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
 }
 
 // Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair>& botKeyPairs, const std::string& matchFile) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair>& botKeyPairs) {
     bool matchFound = false;  // Variable to control the loop
 
     cgbn_mem_t<BITS>* d_results;
@@ -183,7 +183,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     // Launch the GPU kernel
     int block_size = 4;
     int num_blocks = (numResults + block_size - 1) / block_size;
-    kernel_compare<<<num_blocks, block_size * TPI>>>(report, d_results, d_botKeyPairs, numResults, matchFile, d_matchFound);
+    kernel_compare<<<num_blocks, block_size * TPI>>>(report, d_results, d_botKeyPairs, numResults, d_matchFound);
 
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -268,11 +268,11 @@ int main(int argc, char* argv[]) {
     performOperation(publicKey, operand, operationType);
 
     // Check if the result matches any public keys in bot.txt
-    matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
+    matchFound = performGPUComparison(&publicKey, botKeyPairs);
 
     if (matchFound) {
-        std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
-        saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
+        // std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
+        // saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
         break;
     }
 
