@@ -48,6 +48,34 @@ void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, ch
     }
 }
 
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
+    int instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
+
+    if ((instance < numResults)) {
+        cgbn_mem_t<BITS> publicKey = publicKeys[0];
+        cgbn_mem_t<BITS> operand = operands[0];
+        cgbn_mem_t<BITS> iteration;
+
+        context_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
+        env_t          bn_env(bn_context.env<env_t>());                     // construct an environment for 1024-bit math
+        env_t::cgbn_t  pKey, op, rAdd, iter;                                             // define a, b, r as 1024-bit bignums
+        env_t::cgbn_wide_t rMul;
+
+        cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
+        cgbn_load(bn_env, op, &operand);      // load my instance's b value
+
+        // Generate a new key by adding (operand * iteration) to the public key
+
+        std::string iteration = std::to_string(instance);
+        cgbn_mul_wide(bn_env, rMul, iter, op);
+
+        cgbn_add(bn_env, rAdd, pKey, rMul);
+
+        // Now, launch the compare kernel to check for matches
+        // kernel_compare(report, &publicKey, botKeyPairs, numResults, iteration, matchFile, matchFound);
+    }
+}
+
 // Helper function to read key pairs from a file
 std::vector<KeyPair> readKeyPairs(const std::string& filename) {
     std::vector<KeyPair> keyPairs;
