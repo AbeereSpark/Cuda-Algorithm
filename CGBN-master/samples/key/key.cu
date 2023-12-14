@@ -51,7 +51,7 @@ void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, ch
 __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
-    iterationValue._limbs = instance;
+    iterationValue._limbs[0] = instance;
 
     if ((instance < numResults)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
