@@ -52,6 +52,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
+    cgbn_mem_t<BITS> alteredKey;
 
     if ((instance < numResults)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
@@ -72,8 +73,13 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         cgbn_add(bn_env, rAdd, pKey, rMul._low);
 
+        cgbn_store(bn_env, &alteredKey, rAdd);   
+
         // Now, launch the compare kernel to check for matches
-        // kernel_compare(report, &publicKey, botKeyPairs, numResults, iteration, matchFile, matchFound);
+        // Launch the GPU kernel
+        int block_size = 4;
+        int num_blocks = (numResults + block_size - 1) / block_size;
+        kernel_compare<<<num_blocks, block_size * TPI>>>(report, &rAdd, botKeyPairs, numResults, matchFound);
     }
 }
 
@@ -275,7 +281,7 @@ int main(int argc, char* argv[]) {
         // saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
     }
 
-    if (!matchFound) {
+    else {
         std::cout << std::endl << "No Match found " << std::endl;
     }
 
