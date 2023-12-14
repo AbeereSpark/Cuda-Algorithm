@@ -48,7 +48,7 @@ void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, ch
     }
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults,bool* matchFound) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
@@ -133,7 +133,7 @@ void saveMatchToFile(const std::string& matchFile, const std::string& iteration,
 }
 
 // GPU kernel for comparing results in parallel
-__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
+__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, bool* matchFound) {
     int instance = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
     if ((instance < numResults) && !(*matchFound)) 
@@ -265,31 +265,15 @@ int main(int argc, char* argv[]) {
 
     bool matchFound = false;
 
-    cgbn_mem_t<BITS> iteration;
-    set_words(iteration._limbs, "0", BITS / 32);
-    cgbn_mem_t<BITS> one;
-    set_words(one._limbs, "1", BITS / 32);
+    performOperation(publicKey, operand, operationType);
 
-    while( compare_words(iteration._limbs, numIterations._limbs, BITS/32) ) 
-    {
-        // std::cout << "Iteration Count: " << cgbnMemToString(iteration) << std::endl;
+    // Check if the result matches any public keys in bot.txt
+    matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
 
-        // Perform the specified operation
-        performOperation(publicKey, operand, operationType);
-
-        // Display the result
-        // std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
-
-        // Check if the result matches any public keys in bot.txt
-        matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
-
-        if (matchFound) {
-            std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
-            saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
-            break;
-        }
-        
-        add_words(iteration._limbs, iteration._limbs, one._limbs, BITS/32);
+    if (matchFound) {
+        std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
+        saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
+        break;
     }
 
     if (!matchFound) {
