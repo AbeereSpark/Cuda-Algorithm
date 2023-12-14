@@ -16,7 +16,6 @@
 // IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
 #define TPI 32
 #define BITS (33 * 8)
-#define INSTANCES 100
 
 // helpful typedefs for the kernel
 typedef cgbn_context_t<TPI>         context_t;
@@ -223,7 +222,10 @@ int main(int argc, char* argv[]) {
     set_words(operand._limbs, argv[2], BITS / 32);
 
     char operationType = argv[3][0];
-    int numIterations = std::stoi(argv[4]);
+    
+    cgbn_mem_t<BITS> numIterations;
+    set_words(numIterations._limbs, argv[4], BITS / 32);
+
     const std::string matchFile = argv[5];
 
     std::cout << "Entered public key: " << argv[1] << std::endl;
@@ -234,8 +236,14 @@ int main(int argc, char* argv[]) {
 
     bool matchFound = false;
 
-    for (int iteration = 1; iteration <= numIterations && !matchFound; ++iteration) {
-        std::cout << "Iteration Count: " << iteration << std::endl;
+    cgbn_mem_t<BITS> iteration;
+    set_words(iteration._limbs, "0", BITS / 32);
+    cgbn_mem_t<BITS> one;
+    set_words(one._limbs, "1", BITS / 32);
+
+    while( compare_words(iteration.limbs, numIterations._limbs, BITS/32) ) 
+    {
+        std::cout << "Iteration Count: " << cgbnMemToString(iteration) << std::endl;
 
         // Perform the specified operation
         performOperation(publicKey, operand, operationType);
@@ -249,7 +257,10 @@ int main(int argc, char* argv[]) {
         if (matchFound) {
             std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
             saveMatchToFile(matchFile, iteration, cgbnMemToString(publicKey));
+            break;
         }
+        
+        add_words(iteration._limbs, iteration._limbs, one._limbs, BITS/32);
     }
 
 
