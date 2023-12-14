@@ -249,7 +249,7 @@ int main(int argc, char* argv[]) {
         performOperation(publicKey, operand, operationType);
 
         // Display the result
-        std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
+        // std::cout << "Result: " << cgbnMemToString(publicKey) << std::endl;
 
         // Check if the result matches any public keys in bot.txt
         matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
@@ -261,6 +261,10 @@ int main(int argc, char* argv[]) {
         }
         
         add_words(iteration._limbs, iteration._limbs, one._limbs, BITS/32);
+    }
+
+    if (!matchFound) {
+        std::cout << std::endl << "No Match found " std::endl;
     }
 
 
