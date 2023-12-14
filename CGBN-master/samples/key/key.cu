@@ -273,7 +273,6 @@ int main(int argc, char* argv[]) {
     if (matchFound) {
         // std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
         // saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
-        break;
     }
 
     if (!matchFound) {
