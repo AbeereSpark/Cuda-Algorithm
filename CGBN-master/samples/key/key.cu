@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 
     while( compare_words(iteration._limbs, numIterations._limbs, BITS/32) ) 
     {
-        std::cout << "Iteration Count: " << cgbnMemToString(iteration) << std::endl;
+        // std::cout << "Iteration Count: " << cgbnMemToString(iteration) << std::endl;
 
         // Perform the specified operation
         performOperation(publicKey, operand, operationType);
