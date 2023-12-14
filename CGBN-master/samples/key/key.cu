@@ -49,9 +49,9 @@ void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, ch
 }
 
 __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, const std::string matchFile, bool* matchFound) {
-    int instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
-    char str[50];  // Adjust the size based on your needs
-    sprintf(str, "%d", instance);
+    uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
+    cgbn_mem_t<BITS> iterationValue;
+    iterationValue._limbs = instance;
 
     if ((instance < numResults)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
@@ -64,6 +64,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
         cgbn_load(bn_env, op, &operand);      // load my instance's b value
+        cgbn_load(bn_env, iter, &iterationValue);      // load my instance's b value
 
         // Generate a new key by adding (operand * iteration) to the public key
 
