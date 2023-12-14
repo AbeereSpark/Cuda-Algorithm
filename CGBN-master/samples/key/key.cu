@@ -54,7 +54,6 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     if ((instance < numResults)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
         cgbn_mem_t<BITS> operand = operands[0];
-        cgbn_mem_t<BITS> iteration;
 
         context_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
         env_t          bn_env(bn_context.env<env_t>());                     // construct an environment for 1024-bit math
@@ -69,7 +68,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         std::string iteration = std::to_string(instance);
         cgbn_mul_wide(bn_env, rMul, iter, op);
 
-        cgbn_add(bn_env, rAdd, pKey, rMul);
+        cgbn_add(bn_env, rAdd, pKey, rMul._low);
 
         // Now, launch the compare kernel to check for matches
         // kernel_compare(report, &publicKey, botKeyPairs, numResults, iteration, matchFile, matchFound);
