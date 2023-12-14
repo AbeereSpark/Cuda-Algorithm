@@ -94,7 +94,7 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename) {
 
 
 // Helper function to save the matched public key, iteration count, and result to a file
-void saveMatchToFile(const std::string& matchFile, int iteration, const std::string& publicKey) {
+void saveMatchToFile(const std::string& matchFile, const std::string& iteration, const std::string& publicKey) {
     std::ofstream file(matchFile, std::ios::app);
     if (file.is_open()) {
         file << "Iteration Count: " << iteration << std::endl;
@@ -241,7 +241,7 @@ int main(int argc, char* argv[]) {
     cgbn_mem_t<BITS> one;
     set_words(one._limbs, "1", BITS / 32);
 
-    while( compare_words(iteration.limbs, numIterations._limbs, BITS/32) ) 
+    while( compare_words(iteration._limbs, numIterations._limbs, BITS/32) ) 
     {
         std::cout << "Iteration Count: " << cgbnMemToString(iteration) << std::endl;
 
@@ -255,8 +255,8 @@ int main(int argc, char* argv[]) {
         matchFound = performGPUComparison(&publicKey, botKeyPairs, matchFile);
 
         if (matchFound) {
-            std::cout << std::endl << "Match found at Iteration " << iteration << std::endl;
-            saveMatchToFile(matchFile, iteration, cgbnMemToString(publicKey));
+            std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
+            saveMatchToFile(matchFile, cgbnMemToString(iteration), cgbnMemToString(publicKey));
             break;
         }
         
