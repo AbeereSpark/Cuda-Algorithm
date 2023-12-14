@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (!matchFound) {
-        std::cout << std::endl << "No Match found " std::endl;
+        std::cout << std::endl << "No Match found " << std::endl;
     }
 
 
