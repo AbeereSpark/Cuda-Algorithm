@@ -194,7 +194,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         context_single_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
         env_single_t          bn_env(bn_context.env<env_single_t>());                     // construct an environment for 1024-bit math
         env_single_t::cgbn_t  pKey, op, r, iter;                                             // define a, b, r as 1024-bit bignums
-        env_single_t::cgbn_t rMul;
+        env_single_t::cgbn_wide_t rMul;
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
         cgbn_load(bn_env, op, &operand);      // load my instance's b value
@@ -202,18 +202,18 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         // Generate a new key by adding (operand * iteration) to the public key
 
-        cgbn_mul(bn_env, rMul, iter, op);
+        cgbn_mul_wide(bn_env, rMul, iter, op);
 
         if (operationType == 'A') 
         {
-            cgbn_add(bn_env, r, pKey, rMul);
+            cgbn_add(bn_env, r, pKey, rMul._low);
         } 
         else if (operationType == 'S') 
         {
-            cgbn_sub(bn_env, r, pKey, rMul);     
+            cgbn_sub(bn_env, r, pKey, rMul._low);     
         }    
 
-        cgbn_store(bn_env, &alteredKey, r);   
+        cgbn_store(bn_env, &alteredKey, rMul._low);   
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
