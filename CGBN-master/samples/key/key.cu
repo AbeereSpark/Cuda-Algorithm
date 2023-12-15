@@ -15,7 +15,7 @@
 
 // IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
 #define TPI 32
-#define BITS (34 * 8)
+#define BITS (36 * 8)
 
 // helpful typedefs for the kernel
 typedef cgbn_context_t<TPI>         context_t;
