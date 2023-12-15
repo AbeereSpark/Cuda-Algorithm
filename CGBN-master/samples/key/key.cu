@@ -146,7 +146,7 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS> pub
         if (comparisonResult) {
             *matchFound = true;
             *iterCount = iterInstanceCount;
-            cgbn_store(bn_env, matchedKey, publicKey);   // store r into sum
+            cgbn_store(bn_env, matchedKey, a);   // store r into sum
         }
     }
 }
@@ -223,7 +223,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         int num_blocks = (numResults + block_size - 1) / block_size;
         // char pString[100];
         // cgbnMemToStringGPU(alteredKey, pString);
-        printf("0x%s\n", pString);
+        // printf("0x%s\n", pString);
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, matchedKey, numResults, matchFound, instance, iterCount);
     }
 }
@@ -340,7 +340,7 @@ int main(int argc, char* argv[]) {
     // Check if the result matches any public keys in bot.txt
     bool matchResult = performGPUComparison(&publicKey, botKeyPairs, operationType, &operand, numIterations._limbs[0]);
 
-    if (!matchResult)
+    if (!matchResult){
         std::cout << std::endl << "No Match found " << std::endl;
     }
 
