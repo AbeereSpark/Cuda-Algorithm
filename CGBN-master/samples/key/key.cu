@@ -266,7 +266,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     cudaError_t cudaStatus;
 
     // Launch the GPU kernel
-    int block_size = 4;
+    int block_size = 1024;
     int num_blocks = (numIterations + block_size - 1) / block_size;
     kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
