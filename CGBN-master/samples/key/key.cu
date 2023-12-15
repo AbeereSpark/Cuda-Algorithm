@@ -198,21 +198,21 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
         cgbn_load(bn_env, op, &operand);      // load my instance's b value
-        cgbn_load(bn_env, iter, &iterationValue);      // load my instance's b value
+        // cgbn_load(bn_env, iter, &iterationValue);      // load my instance's b value
 
-        cgbn_mul_ui32(bn_env, r, op, instance);
+        cgbn_mul_ui32(bn_env, iter, op, instance);
         // Generate a new key by adding (operand * iteration) to the public key
 
         // cgbn_mul(bn_env, r, iter, op);
 
-        // if (operationType == 'A') 
-        // {
-        //     cgbn_add(bn_env, r, pKey, rMul);
-        // } 
-        // else if (operationType == 'S') 
-        // {
-        //     cgbn_sub(bn_env, r, pKey, rMul);     
-        // }    
+        if (operationType == 'A') 
+        {
+            cgbn_add(bn_env, r, pKey, iter);
+        } 
+        else if (operationType == 'S') 
+        {
+            cgbn_sub(bn_env, r, pKey, iter);     
+        }    
 
         cgbn_store(bn_env, &alteredKey, r);   
 
