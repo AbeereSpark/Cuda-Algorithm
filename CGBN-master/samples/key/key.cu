@@ -229,7 +229,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 }
 
 // Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, int numIterations) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, int numIterations, const std::string matchFile) {
     bool matchFound = false;  // Variable to control the loop
     int iterCount = 0;  // Variable to control the loop
     cgbn_mem_t<BITS> matchedKey;
@@ -338,7 +338,7 @@ int main(int argc, char* argv[]) {
     // performOperation(publicKey, operand, operationType);
 
     // Check if the result matches any public keys in bot.txt
-    bool matchResult = performGPUComparison(&publicKey, botKeyPairs, operationType, &operand, numIterations._limbs[0]);
+    bool matchResult = performGPUComparison(&publicKey, botKeyPairs, operationType, &operand, numIterations._limbs[0], matchFile);
 
     if (!matchResult){
         std::cout << std::endl << "No Match found " << std::endl;
