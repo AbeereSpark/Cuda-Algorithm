@@ -212,7 +212,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         typedef cgbn_context_t<1>         context_single_t;
         typedef cgbn_env_t<context_single_t, BITS> env_single_t;
         context_single_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
-        env_single_t          bn_env(bn_context.env<env_t>());                     // construct an environment for 1024-bit math
+        env_single_t          bn_env(bn_context.env<env_single_t>());                     // construct an environment for 1024-bit math
         env_single_t::cgbn_t  pKey, op, rAdd, iter;                                             // define a, b, r as 1024-bit bignums
         env_single_t::cgbn_wide_t rMul;
 
