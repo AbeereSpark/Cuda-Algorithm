@@ -224,13 +224,13 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         cgbn_add(bn_env, rAdd, pKey, rMul._low);
 
-        cgbn_store(bn_env, &alteredKey, rAdd);   
+        cgbn_store(bn_env, alteredKey, rAdd);   
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
-        kernel_compare<<<num_blocks, block_size * TPI>>>(report, &alteredKey, botKeyPairs, numResults, matchFound);
+        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound);
     }
 }
 
