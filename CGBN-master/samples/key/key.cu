@@ -199,7 +199,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // Launch the GPU kernel
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
-        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
+        // kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
     }
 }
 
@@ -249,7 +249,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
         // Additional error handling or debugging steps can be added here
     }
     // Wait for the kernel to finish
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     // Copy back the result
     CUDA_CHECK(cudaMemcpy(&matchFound, d_matchFound, sizeof(bool), cudaMemcpyDeviceToHost));
