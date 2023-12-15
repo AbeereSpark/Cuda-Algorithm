@@ -12,6 +12,7 @@
 #include "../utility/cpu_simple_bn_math.h"
 #include "../utility/gpu_support.h"
 #include <cuda_runtime.h>
+#include <chrono>
 
 // IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
 #define TPI 1
