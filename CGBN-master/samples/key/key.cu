@@ -331,6 +331,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Entered public key: " << argv[1] << std::endl;
     std::cout << "Entered operand: " << argv[2] << std::endl << std::endl;
     std::cout << "Entered Number of Iterations: " << cgbnMemToStringCPU(numIterations) << std::endl << std::endl;
+    auto start_time = std::chrono::high_resolution_clock::now();  // Record the start time
 
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
@@ -343,6 +344,12 @@ int main(int argc, char* argv[]) {
     if (!matchResult){
         std::cout << std::endl << "No Match found " << std::endl;
     }
+
+    auto end_time = std::chrono::high_resolution_clock::now();  // Record the end time
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);  // Calculate the duration in milliseconds
+    std::cout << std::endl << "Program duration: " << duration.count() << " milliseconds" << std::endl;
+    std::cout << std::endl << "Program duration: " << duration.count() * 1000 << " seconds" << std::endl;
+
 
 
     return 0;
