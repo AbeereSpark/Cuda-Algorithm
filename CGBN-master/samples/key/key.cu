@@ -38,7 +38,7 @@ struct KeyPair {
 
 // Function to convert an integer to a hexadecimal string
 __host__ __device__ void intToHexStr(uint32_t value, char* output) {
-    const char hexChars[] = "0123456789ABCDEF";
+    const char hexChars[] = "0123456789abcdef";
     output[0] = hexChars[(value >> 28) & 0xF];
     output[1] = hexChars[(value >> 24) & 0xF];
     output[2] = hexChars[(value >> 20) & 0xF];
