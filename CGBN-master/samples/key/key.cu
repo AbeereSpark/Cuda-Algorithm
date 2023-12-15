@@ -203,11 +203,11 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 }
 
 // Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operands, int numIterations) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, int numIterations) {
     bool matchFound = false;  // Variable to control the loop
 
     cgbn_mem_t<BITS>* d_publicKey;
-    cgbn_mem_t<BITS>* d_publicKey;
+    cgbn_mem_t<BITS>* d_operand;
     KeyPair* d_botKeyPairs;
     bool* d_matchFound;
     cgbn_error_report_t *report;
@@ -232,7 +232,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     // Launch the GPU kernel
     int block_size = 128;
     int num_blocks = (numIterations + block_size - 1) / block_size;
-    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, operationType, d_operands, numIterations, numResults, d_matchFound);
+    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, operationType, d_operand, numIterations, numResults, d_matchFound);
 
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
