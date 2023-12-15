@@ -267,7 +267,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     cudaError_t cudaStatus;
 
     // Launch the GPU kernel
-    int block_size = 1024;
+    int block_size = 2048;
     int num_blocks = (numIterations + block_size - 1) / block_size;
     kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
@@ -349,7 +349,7 @@ int main(int argc, char* argv[]) {
     auto end_time = std::chrono::high_resolution_clock::now();  // Record the end time
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);  // Calculate the duration in milliseconds
     std::cout << std::endl << "Program duration: " << duration.count() << " milliseconds" << std::endl;
-    std::cout << std::endl << "Program duration: " << duration.count() * 1000 << " seconds" << std::endl;
+    std::cout << std::endl << "Program duration: " << duration.count() / 1000 << " seconds" << std::endl;
 
 
 
