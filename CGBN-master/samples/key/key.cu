@@ -326,9 +326,6 @@ int main(int argc, char* argv[]) {
     std::cout << "Entered operand: " << argv[2] << std::endl << std::endl;
     std::cout << "Entered Number of Iterations: " << numIterations._limbs[0] << std::endl << std::endl;
 
-    return 0;
-
-
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
 
