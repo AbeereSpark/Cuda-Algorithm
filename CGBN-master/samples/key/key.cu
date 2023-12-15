@@ -194,7 +194,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         context_single_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
         env_single_t          bn_env(bn_context.env<env_single_t>());                     // construct an environment for 1024-bit math
         env_single_t::cgbn_t  pKey, op, r, iter;                                             // define a, b, r as 1024-bit bignums
-        env_single_t::cgbn_wide_t rMul;
+        env_single_t::cgbn_t rMul;
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
         cgbn_load(bn_env, op, &operand);      // load my instance's b value
@@ -202,15 +202,15 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         // Generate a new key by adding (operand * iteration) to the public key
 
-        cgbn_mul_wide(bn_env, rMul, iter, op);
+        cgbn_mul(bn_env, rMul, iter, op);
 
         if (operationType == 'A') 
         {
-            cgbn_add(bn_env, r, pKey, rMul._low);
+            cgbn_add(bn_env, r, pKey, rMul);
         } 
         else if (operationType == 'S') 
         {
-            cgbn_sub(bn_env, r, pKey, rMul._low);     
+            cgbn_sub(bn_env, r, pKey, rMul);     
         }    
 
         cgbn_store(bn_env, &alteredKey, r);   
@@ -220,10 +220,8 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
         char pString[100];
-        cgbnMemToStringGPU(rMul._low, pString);
+        cgbnMemToStringGPU(alteredKey, pString);
         printf("0x%s\n", pString);
-        cgbnMemToStringGPU(rMul._high, pString);
-        printf("0x%s\n\n", pString);
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
     }
 }
