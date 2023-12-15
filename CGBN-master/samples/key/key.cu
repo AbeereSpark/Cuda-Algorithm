@@ -155,7 +155,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     // Launch the GPU kernel
     int block_size = 4;
     int num_blocks = (numResults + block_size - 1) / block_size;
-    kernel_compare<<<num_blocks, block_size * TPI>>>(report, d_results, d_botKeyPairs, numResults, d_matchFound);
+    // kernel_compare<<<num_blocks, block_size * TPI>>>(report, d_results, d_botKeyPairs, numResults, d_matchFound);
 
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -199,7 +199,7 @@ bool checkCudaAvailability() {
     return true;
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, bool* matchFound) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, bool* matchFound, char operationType) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
@@ -214,7 +214,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         typedef cgbn_env_t<context_single_t, BITS> env_single_t;
         context_single_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
         env_single_t          bn_env(bn_context.env<env_single_t>());                     // construct an environment for 1024-bit math
-        env_single_t::cgbn_t  pKey, op, rAdd, iter;                                             // define a, b, r as 1024-bit bignums
+        env_single_t::cgbn_t  pKey, op, r, iter;                                             // define a, b, r as 1024-bit bignums
         env_single_t::cgbn_wide_t rMul;
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
@@ -225,9 +225,16 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         cgbn_mul_wide(bn_env, rMul, iter, op);
 
-        cgbn_add(bn_env, rAdd, pKey, rMul._low);
+        if (operationType == 'A') 
+        {
+            cgbn_add(bn_env, r, pKey, rMul._low);
+        } 
+        else if (operationType == 'S') 
+        {
+            cgbn_sub(bn_env, r, pKey, rMul._low);     
+        }    
 
-        cgbn_store(bn_env, alteredKey, rAdd);   
+        cgbn_store(bn_env, alteredKey, r);   
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
