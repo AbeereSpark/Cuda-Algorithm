@@ -220,7 +220,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
-        int block_size = 512;
+        int block_size = 1024;
         int num_blocks = (numResults + block_size - 1) / block_size;
         // char pString[100];
         // cgbnMemToStringGPU(alteredKey, pString);
