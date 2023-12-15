@@ -181,7 +181,7 @@ bool checkCudaAvailability() {
 }
 
 __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, char operationType, const cgbn_mem_t<BITS>* operands, int numIterations, int numResults, bool* matchFound, int* iterCount) {
-    uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x)/ TPI;
+    uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x);
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS> alteredKey;
@@ -266,9 +266,9 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     cudaError_t cudaStatus;
 
     // Launch the GPU kernel
-    int block_size = 4;
+    int block_size = 128;
     int num_blocks = (numIterations + block_size - 1) / block_size;
-    kernel_iterate<<<num_blocks, block_size * TPI>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
+    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
     // Check for kernel launch errors
     cudaStatus = cudaGetLastError();
