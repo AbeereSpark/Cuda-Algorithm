@@ -128,7 +128,7 @@ void saveMatchToFile(const std::string& matchFile, const std::string& iteration,
 }
 
 // GPU kernel for comparing results in parallel
-__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS> publicKey, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, int numResults, bool* matchFound, uint32_t iterInstanceCount, int* iterCount) {
+__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS> publicKey, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, uint32_t numResults, bool* matchFound, uint32_t iterInstanceCount, int* iterCount) {
     int instance = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
     if ((instance < numResults) && !(*matchFound)) 
@@ -181,7 +181,7 @@ bool checkCudaAvailability() {
     return true;
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, char operationType, const cgbn_mem_t<BITS>* operands, int numIterations, int numResults, bool* matchFound, int* iterCount) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, char operationType, const cgbn_mem_t<BITS>* operands, uint32_t numIterations, int numResults, bool* matchFound, int* iterCount) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x);
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
@@ -220,8 +220,8 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
-        int block_size = 1024;
-        int num_blocks = (numResults + block_size - 1) / block_size;
+        uint32_t block_size = 1024;
+        uint32_t num_blocks = (numResults + block_size - 1) / block_size;
         // char pString[100];
         // cgbnMemToStringGPU(alteredKey, pString);
         // printf("0x%s\n", pString);
@@ -230,7 +230,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 }
 
 // Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, int numIterations, const std::string matchFile) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, uint32_t numIterations, const std::string matchFile) {
     bool matchFound = false;  // Variable to control the loop
     int iterCount = 0;  // Variable to control the loop
     cgbn_mem_t<BITS> matchedKey;
@@ -261,14 +261,14 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     // create a cgbn_error_report for CGBN to report back errors
     CUDA_CHECK(cgbn_error_report_alloc(&report)); 
 
-    int numResults = botKeyPairs.size();
+    uint32_t numResults = botKeyPairs.size();
 
     // Before the kernel launch
     cudaError_t cudaStatus;
 
     // Launch the GPU kernel
-    int block_size = 512;
-    int num_blocks = (numIterations + block_size - 1) / block_size;
+    uint32_t block_size = 512;
+    uint32_t num_blocks = (numIterations + block_size - 1U) / block_size;
     kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
     // Check for kernel launch errors
@@ -326,6 +326,8 @@ int main(int argc, char* argv[]) {
     
     cgbn_mem_t<BITS> numIterations;
     set_words(numIterations._limbs, argv[4], BITS / 32);
+    uint64_t numIterationsInt = 0;
+    memcpy(&numIterationsInt, numIterations._limbs, sizeof(uint64_t));
 
     const std::string matchFile = argv[5];
 
