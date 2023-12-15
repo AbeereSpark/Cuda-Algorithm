@@ -162,8 +162,8 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
-    cgbn_mem_t<BITS>* alteredKey;
-    alteredKey = (cgbn_mem_t<BITS>*)malloc(sizeof(cgbn_mem_t<BITS>));
+    cgbn_mem_t<BITS> alteredKey;
+    // alteredKey = (cgbn_mem_t<BITS>*)malloc(sizeof(cgbn_mem_t<BITS>));
 
     if ((instance < numIterations)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
@@ -193,7 +193,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
             cgbn_sub(bn_env, r, pKey, rMul._low);     
         }    
 
-        cgbn_store(bn_env, alteredKey, r);   
+        cgbn_store(bn_env, &alteredKey, r);   
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
