@@ -27,14 +27,14 @@ struct KeyPair {
 };
 
 // // Function to convert cgbn_mem_t limbs to a hexadecimal string
-// std::string cgbnMemToString(const cgbn_mem_t<BITS>& value) {
-//     std::stringstream ss;
-//     ss << "0x";
-//     for (int i = BITS / 32 - 1; i >= 0; --i) {
-//         ss << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
-//     }
-//     return ss.str();
-// }
+std::string cgbnMemToString2(const cgbn_mem_t<BITS>& value) {
+    std::stringstream ss;
+    ss << "0x";
+    for (int i = BITS / 32 - 1; i >= 0; --i) {
+        ss << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
+    }
+    return ss.str();
+}
 
 // Function to convert an integer to a hexadecimal string
 __host__ __device__ void intToHexStr(uint32_t value, char* output) {
@@ -327,7 +327,9 @@ int main(int argc, char* argv[]) {
     char pString[200];
     cgbnMemToString(publicKey, pString);
     std::cout << std::endl << pString;
+    std::cout << std::endl << cgbnMemToString2(publicKey) << std::endl;
     return 0;
+
 
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
