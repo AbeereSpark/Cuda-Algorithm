@@ -183,8 +183,8 @@ bool checkCudaAvailability() {
 
 __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, char operationType, const cgbn_mem_t<BITS>* operands, uint32_t numIterations, int numResults, bool* matchFound, int* iterCount) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x);
-    cgbn_mem_t<BITS> iterationValue;
-    iterationValue._limbs[0] = instance;
+    // cgbn_mem_t<BITS> iterationValue;
+    // iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS> alteredKey;
 
     if (((instance < numIterations) && !(*matchFound))) {
@@ -196,7 +196,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         context_single_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
         env_single_t          bn_env(bn_context.env<env_single_t>());                     // construct an environment for 1024-bit math
         env_single_t::cgbn_t  pKey, op, r, iter;                                             // define a, b, r as 1024-bit bignums
-        env_single_t::cgbn_t rMul;
+        // env_single_t::cgbn_t rMul;
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
         cgbn_load(bn_env, op, &operand);      // load my instance's b value
