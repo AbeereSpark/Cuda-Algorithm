@@ -220,7 +220,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
 
     // Copy data to the GPU
     CUDA_CHECK(cudaMemcpy(d_publicKey, h_publicKey, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_operand, h_operands, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_operand, h_operand, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
 
@@ -289,7 +289,7 @@ int main(int argc, char* argv[]) {
     // performOperation(publicKey, operand, operationType);
 
     // Check if the result matches any public keys in bot.txt
-    matchFound = performGPUComparison(&publicKey, botKeyPairs);
+    matchFound = performGPUComparison(&publicKey, botKeyPairs, operationType, &operand, numIterations._limbs[0]);
 
     if (matchFound) {
         // std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iteration) << std::endl;
