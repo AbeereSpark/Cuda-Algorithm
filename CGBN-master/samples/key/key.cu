@@ -220,7 +220,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
-        int block_size = 4;
+        int block_size = 512;
         int num_blocks = (numResults + block_size - 1) / block_size;
         // char pString[100];
         // cgbnMemToStringGPU(alteredKey, pString);
@@ -349,7 +349,7 @@ int main(int argc, char* argv[]) {
     auto end_time = std::chrono::high_resolution_clock::now();  // Record the end time
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);  // Calculate the duration in milliseconds
     std::cout << std::endl << "Program duration: " << duration.count() << " milliseconds" << std::endl;
-    std::cout << std::endl << "Program duration: " << duration.count() / 1000 << " seconds" << std::endl;
+    std::cout << std::endl << "Program duration: " << duration.count() / 1000.0 << " seconds" << std::endl;
 
 
 
