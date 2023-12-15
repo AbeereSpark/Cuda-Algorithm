@@ -104,7 +104,7 @@ void saveMatchToFile(const std::string& matchFile, const std::string& iteration,
 }
 
 // GPU kernel for comparing results in parallel
-__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, bool* matchFound) {
+__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, bool* matchFound, uint32_t instance, int* iterCount) {
     int instance = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
     if ((instance < numResults) && !(*matchFound)) 
@@ -123,6 +123,7 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
 
         if (comparisonResult) {
             *matchFound = true;
+            *iterCount = instance;
         }
     }
     free(results);
@@ -157,7 +158,7 @@ bool checkCudaAvailability() {
     return true;
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, char operationType, const cgbn_mem_t<BITS>* operands, int numIterations, int numResults, bool* matchFound) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, char operationType, const cgbn_mem_t<BITS>* operands, int numIterations, int numResults, bool* matchFound, int* iterCount) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
@@ -198,18 +199,20 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // Launch the GPU kernel
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
-        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound);
+        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
     }
 }
 
 // Function to perform GPU comparison
 bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, int numIterations) {
     bool matchFound = false;  // Variable to control the loop
+    int iterCount = 0;  // Variable to control the loop
 
     cgbn_mem_t<BITS>* d_publicKey;
     cgbn_mem_t<BITS>* d_operand;
     KeyPair* d_botKeyPairs;
     bool* d_matchFound;
+    int* d_iterCount;
     cgbn_error_report_t *report;
 
     // Allocate memory on the GPU
@@ -217,12 +220,14 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     CUDA_CHECK(cudaMalloc((void**)&d_operand, sizeof(cgbn_mem_t<BITS>)));
     CUDA_CHECK(cudaMalloc((void**)&d_botKeyPairs, botKeyPairs.size() * sizeof(KeyPair)));
     CUDA_CHECK(cudaMalloc((void**)&d_matchFound, sizeof(bool)));
+    CUDA_CHECK(cudaMalloc((void**)&d_iterCount, sizeof(int)));
 
     // Copy data to the GPU
     CUDA_CHECK(cudaMemcpy(d_publicKey, h_publicKey, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_operand, h_operand, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_iterCount, &iterCount, sizeof(int), cudaMemcpyHostToDevice));
 
     // create a cgbn_error_report for CGBN to report back errors
     CUDA_CHECK(cgbn_error_report_alloc(&report)); 
@@ -232,18 +237,25 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     // Launch the GPU kernel
     int block_size = 128;
     int num_blocks = (numIterations + block_size - 1) / block_size;
-    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, operationType, d_operand, numIterations, numResults, d_matchFound);
+    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
 
     // Copy back the result
     CUDA_CHECK(cudaMemcpy(&matchFound, d_matchFound, sizeof(bool), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(&iterCount, d_iterCount, sizeof(int), cudaMemcpyDeviceToHost));
 
     // Free GPU memory
     CUDA_CHECK(cudaFree(d_publicKey));
     CUDA_CHECK(cudaFree(d_botKeyPairs));
     CUDA_CHECK(cudaFree(d_matchFound));
+    CUDA_CHECK(cudaFree(d_iterCount));
+
+    if (matchFound) {
+        std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iterCount) << std::endl;
+        // saveMatchToFile(matchFile, cgbnMemToString(iterCount), cgbnMemToString(publicKey));
+    }
 
     return matchFound;
 }
