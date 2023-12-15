@@ -128,48 +128,6 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
     free(results);
 }
 
-// Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair>& botKeyPairs) {
-    bool matchFound = false;  // Variable to control the loop
-
-    cgbn_mem_t<BITS>* d_results;
-    KeyPair* d_botKeyPairs;
-    bool* d_matchFound;
-    cgbn_error_report_t *report;
-
-    // Allocate memory on the GPU
-    CUDA_CHECK(cudaMalloc((void**)&d_results, sizeof(cgbn_mem_t<BITS>)));
-    CUDA_CHECK(cudaMalloc((void**)&d_botKeyPairs, botKeyPairs.size() * sizeof(KeyPair)));
-    CUDA_CHECK(cudaMalloc((void**)&d_matchFound, sizeof(bool)));
-
-    // Copy data to the GPU
-    CUDA_CHECK(cudaMemcpy(d_results, h_results, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
-
-    // create a cgbn_error_report for CGBN to report back errors
-    CUDA_CHECK(cgbn_error_report_alloc(&report)); 
-
-    int numResults = botKeyPairs.size();
-
-    // Launch the GPU kernel
-    int block_size = 4;
-    int num_blocks = (numResults + block_size - 1) / block_size;
-    // kernel_compare<<<num_blocks, block_size * TPI>>>(report, d_results, d_botKeyPairs, numResults, d_matchFound);
-
-    // Wait for the kernel to finish
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    // Copy back the result
-    CUDA_CHECK(cudaMemcpy(&matchFound, d_matchFound, sizeof(bool), cudaMemcpyDeviceToHost));
-
-    // Free GPU memory
-    CUDA_CHECK(cudaFree(d_results));
-    CUDA_CHECK(cudaFree(d_botKeyPairs));
-    CUDA_CHECK(cudaFree(d_matchFound));
-
-    return matchFound;
-}
 
 bool checkCudaAvailability() {
     int deviceCount;
@@ -199,14 +157,14 @@ bool checkCudaAvailability() {
     return true;
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, bool* matchFound, char operationType) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, char operationType, const cgbn_mem_t<BITS>* operands, int numIterations, int numResults, bool* matchFound) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS>* alteredKey;
     alteredKey = (cgbn_mem_t<BITS>*)malloc(sizeof(cgbn_mem_t<BITS>));
 
-    if ((instance < numResults)) {
+    if ((instance < numIterations)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
         cgbn_mem_t<BITS> operand = operands[0];
 
@@ -242,6 +200,52 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         int num_blocks = (numResults + block_size - 1) / block_size;
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound);
     }
+}
+
+// Function to perform GPU comparison
+bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operands, int numIterations) {
+    bool matchFound = false;  // Variable to control the loop
+
+    cgbn_mem_t<BITS>* d_publicKey;
+    cgbn_mem_t<BITS>* d_publicKey;
+    KeyPair* d_botKeyPairs;
+    bool* d_matchFound;
+    cgbn_error_report_t *report;
+
+    // Allocate memory on the GPU
+    CUDA_CHECK(cudaMalloc((void**)&d_publicKey, sizeof(cgbn_mem_t<BITS>)));
+    CUDA_CHECK(cudaMalloc((void**)&d_operand, sizeof(cgbn_mem_t<BITS>)));
+    CUDA_CHECK(cudaMalloc((void**)&d_botKeyPairs, botKeyPairs.size() * sizeof(KeyPair)));
+    CUDA_CHECK(cudaMalloc((void**)&d_matchFound, sizeof(bool)));
+
+    // Copy data to the GPU
+    CUDA_CHECK(cudaMemcpy(d_publicKey, h_publicKey, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_operand, h_operands, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
+
+    // create a cgbn_error_report for CGBN to report back errors
+    CUDA_CHECK(cgbn_error_report_alloc(&report)); 
+
+    int numResults = botKeyPairs.size();
+
+    // Launch the GPU kernel
+    int block_size = 128;
+    int num_blocks = (numIterations + block_size - 1) / block_size;
+    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, operationType, d_operands, numIterations, numResults, d_matchFound);
+
+    // Wait for the kernel to finish
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    // Copy back the result
+    CUDA_CHECK(cudaMemcpy(&matchFound, d_matchFound, sizeof(bool), cudaMemcpyDeviceToHost));
+
+    // Free GPU memory
+    CUDA_CHECK(cudaFree(d_publicKey));
+    CUDA_CHECK(cudaFree(d_botKeyPairs));
+    CUDA_CHECK(cudaFree(d_matchFound));
+
+    return matchFound;
 }
 
 int main(int argc, char* argv[]) {
@@ -282,7 +286,7 @@ int main(int argc, char* argv[]) {
 
     bool matchFound = false;
 
-    performOperation(publicKey, operand, operationType);
+    // performOperation(publicKey, operand, operationType);
 
     // Check if the result matches any public keys in bot.txt
     matchFound = performGPUComparison(&publicKey, botKeyPairs);
@@ -299,4 +303,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
