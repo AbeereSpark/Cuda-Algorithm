@@ -30,22 +30,22 @@ clean:
 	rm -f add
 
 kepler:
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_35 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_35 key.cu -o key -lgmp -rdc=true
 
 maxwell:
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_50 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_50 key.cu -o key -lgmp -rdc=true
 
 pascal:
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_60 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_60 key.cu -o key -lgmp -rdc=true
 
 volta: 
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_70 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_70 key.cu -o key -lgmp -rdc=true
 
 turing: 
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_75 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_75 key.cu -o key -lgmp -rdc=true
 
 ampere: 
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_80 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_80 key.cu -o key -lgmp -rdc=true
 
 ada: 
 	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 key.cu -o key -lgmp -rdc=true

@@ -202,7 +202,8 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
-    cgbn_mem_t<BITS> alteredKey;
+    cgbn_mem_t<BITS>* alteredKey;
+    CUDA_CHECK(cudaMalloc((void**)&alteredKey, sizeof(cgbn_mem_t<BITS>)));
 
     if ((instance < numResults)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
