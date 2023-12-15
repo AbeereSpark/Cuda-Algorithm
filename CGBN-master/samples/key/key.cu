@@ -27,7 +27,7 @@ struct KeyPair {
 };
 
 // // Function to convert cgbn_mem_t limbs to a hexadecimal string
-std::string cgbnMemToString2(const cgbn_mem_t<BITS>& value) {
+std::string cgbnMemToStringCPU(const cgbn_mem_t<BITS>& value) {
     std::stringstream ss;
     ss << "0x";
     for (int i = BITS / 32 - 1; i >= 0; --i) {
@@ -51,7 +51,7 @@ __host__ __device__ void intToHexStr(uint32_t value, char* output) {
 }
 
 // Function to convert cgbn_mem_t limbs to a hexadecimal string
-__host__ __device__ void cgbnMemToString(const cgbn_mem_t<BITS>& value, char* output) {
+__host__ __device__ void cgbnMemToStringGPU(const cgbn_mem_t<BITS>& value, char* output) {
     int index = 0;
     for (int i = BITS / 32 - 1; i >= 0; --i) {
         intToHexStr(value._limbs[i], output + index);
@@ -220,7 +220,9 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // Launch the GPU kernel
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
-        printf ("Altered key : %x\n", alteredKey._limbs[0]);
+        char pString[100];
+        cgbnMemToStringGPU(publicKey, pString);
+        printf("0x%s", pString);
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
     }
 }
@@ -324,10 +326,6 @@ int main(int argc, char* argv[]) {
     std::cout << "Entered operand: " << argv[2] << std::endl << std::endl;
     std::cout << "Entered Number of Iterations: " << numIterations._limbs[0] << std::endl << std::endl;
 
-    char pString[200];
-    cgbnMemToString(publicKey, pString);
-    std::cout << std::endl << "1st key " << pString;
-    std::cout << std::endl << "2nd key " << cgbnMemToString2(publicKey) << std::endl;
     return 0;
 
 
