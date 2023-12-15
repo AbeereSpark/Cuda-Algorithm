@@ -104,7 +104,7 @@ void saveMatchToFile(const std::string& matchFile, const std::string& iteration,
 }
 
 // GPU kernel for comparing results in parallel
-__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, bool* matchFound, uint32_t iterInstanceCount, int* iterCount) {
+__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS> results, KeyPair* botKeyPairs, int numResults, bool* matchFound, uint32_t iterInstanceCount, int* iterCount) {
     int instance = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
     if ((instance < numResults) && !(*matchFound)) 
@@ -163,7 +163,6 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS> alteredKey;
-    // alteredKey = (cgbn_mem_t<BITS>*)malloc(sizeof(cgbn_mem_t<BITS>));
 
     if ((instance < numIterations)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
