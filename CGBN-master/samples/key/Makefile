@@ -48,7 +48,7 @@ ampere:
 	nvcc $(INC) $(LIB) -I../../include -arch=sm_80 key.cu -o key -lgmp
 
 ada: 
-	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 key.cu -o key -lgmp
+	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 key.cu -o key -lgmp -rdc=true
 
 run_add: $(TARGET)
 	ncu ./$(TARGET) $(KEY) $(value) A $(ITERATIONS) $(FILENAME)
