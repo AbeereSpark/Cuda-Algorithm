@@ -234,11 +234,20 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
 
     int numResults = botKeyPairs.size();
 
+    // Before the kernel launch
+    cudaError_t cudaStatus;
+
     // Launch the GPU kernel
     int block_size = 128;
     int num_blocks = (numIterations + block_size - 1) / block_size;
     kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
+    // Check for kernel launch errors
+    cudaStatus = cudaGetLastError();
+    if (cudaStatus != cudaSuccess) {
+        std::cerr << "Kernel launch error: " << cudaGetErrorString(cudaStatus) << std::endl;
+        // Additional error handling or debugging steps can be added here
+    }
     // Wait for the kernel to finish
     CUDA_CHECK(cudaDeviceSynchronize());
 
