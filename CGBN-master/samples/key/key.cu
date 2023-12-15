@@ -125,7 +125,6 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS> pub
             *iterCount = iterInstanceCount;
         }
     }
-    free(results);
 }
 
 
