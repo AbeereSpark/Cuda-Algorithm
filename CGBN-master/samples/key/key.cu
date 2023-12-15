@@ -220,8 +220,10 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
         char pString[100];
-        cgbnMemToStringGPU(alteredKey, pString);
+        cgbnMemToStringGPU(rMul._low, pString);
         printf("0x%s\n", pString);
+        cgbnMemToStringGPU(rMul._high, pString);
+        printf("0x%s\n\n", pString);
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
     }
 }
