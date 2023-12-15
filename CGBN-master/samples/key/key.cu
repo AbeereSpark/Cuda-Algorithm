@@ -26,14 +26,37 @@ struct KeyPair {
     cgbn_mem_t<BITS> public_key;
 };
 
+// // Function to convert cgbn_mem_t limbs to a hexadecimal string
+// std::string cgbnMemToString(const cgbn_mem_t<BITS>& value) {
+//     std::stringstream ss;
+//     ss << "0x";
+//     for (int i = BITS / 32 - 1; i >= 0; --i) {
+//         ss << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
+//     }
+//     return ss.str();
+// }
+
+// Function to convert an integer to a hexadecimal string
+__host__ __device__ void intToHexStr(uint32_t value, char* output) {
+    const char hexChars[] = "0123456789ABCDEF";
+    output[0] = hexChars[(value >> 28) & 0xF];
+    output[1] = hexChars[(value >> 24) & 0xF];
+    output[2] = hexChars[(value >> 20) & 0xF];
+    output[3] = hexChars[(value >> 16) & 0xF];
+    output[4] = hexChars[(value >> 12) & 0xF];
+    output[5] = hexChars[(value >> 8) & 0xF];
+    output[6] = hexChars[(value >> 4) & 0xF];
+    output[7] = hexChars[value & 0xF];
+    output[8] = '\0';
+}
+
 // Function to convert cgbn_mem_t limbs to a hexadecimal string
-std::string cgbnMemToString(const cgbn_mem_t<BITS>& value) {
-    std::stringstream ss;
-    ss << "0x";
+__host__ __device__ void cgbnMemToString(const cgbn_mem_t<BITS>& value, char* output) {
+    int index = 0;
     for (int i = BITS / 32 - 1; i >= 0; --i) {
-        ss << std::hex << std::setw(8) << std::setfill('0') << value._limbs[i];
+        intToHexStr(value._limbs[i], output + index);
+        index += 8;
     }
-    return ss.str();
 }
 
 // Helper function to perform addition or subtraction
@@ -197,6 +220,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // Launch the GPU kernel
         int block_size = 4;
         int num_blocks = (numResults + block_size - 1) / block_size;
+        printf ("Altered key : %x\n", alteredKey._limbs[0]);
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, numResults, matchFound, instance, iterCount);
     }
 }
@@ -299,6 +323,11 @@ int main(int argc, char* argv[]) {
     std::cout << "Entered public key: " << argv[1] << std::endl;
     std::cout << "Entered operand: " << argv[2] << std::endl << std::endl;
     std::cout << "Entered Number of Iterations: " << numIterations._limbs[0] << std::endl << std::endl;
+
+    char pString[100];
+    cgbnMemToString(publicKey, pString);
+    std::cout << std::endl << pString;
+    return 0;
 
     // Read key pairs from bot.txt
     std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
