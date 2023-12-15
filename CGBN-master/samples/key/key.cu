@@ -38,7 +38,7 @@ struct KeyPair {
 
 // Function to convert an integer to a hexadecimal string
 __host__ __device__ void intToHexStr(uint32_t value, char* output) {
-    const char hexChars[] = "0123456789abcdef";
+    const char hexChars[] = "0123456789ABCDEF";
     output[0] = hexChars[(value >> 28) & 0xF];
     output[1] = hexChars[(value >> 24) & 0xF];
     output[2] = hexChars[(value >> 20) & 0xF];
@@ -48,6 +48,11 @@ __host__ __device__ void intToHexStr(uint32_t value, char* output) {
     output[6] = hexChars[(value >> 4) & 0xF];
     output[7] = hexChars[value & 0xF];
     output[8] = '\0';
+
+    // Pad with leading zeros if necessary
+    for (int i = 0; i < 7 && output[i] == '0'; ++i) {
+        output[i] = '0';
+    }
 }
 
 // Function to convert cgbn_mem_t limbs to a hexadecimal string
