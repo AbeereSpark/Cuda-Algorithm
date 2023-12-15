@@ -326,8 +326,8 @@ int main(int argc, char* argv[]) {
 
     char pString[200];
     cgbnMemToString(publicKey, pString);
-    std::cout << std::endl << pString;
-    std::cout << std::endl << cgbnMemToString2(publicKey) << std::endl;
+    std::cout << std::endl << "1st key " << pString;
+    std::cout << std::endl << "2nd key " << cgbnMemToString2(publicKey) << std::endl;
     return 0;
 
 
