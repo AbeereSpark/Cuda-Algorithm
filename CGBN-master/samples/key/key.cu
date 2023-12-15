@@ -14,7 +14,7 @@
 #include <cuda_runtime.h>
 
 // IMPORTANT:  DO NOT DEFINE TPI OR BITS BEFORE INCLUDING CGBN
-#define TPI 32
+#define TPI 1
 #define BITS (36 * 8)
 
 // helpful typedefs for the kernel
