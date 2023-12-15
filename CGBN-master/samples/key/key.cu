@@ -181,7 +181,7 @@ bool checkCudaAvailability() {
 }
 
 __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, char operationType, const cgbn_mem_t<BITS>* operands, int numIterations, int numResults, bool* matchFound, int* iterCount) {
-    uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
+    uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x)/ TPI;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS> alteredKey;
@@ -190,12 +190,12 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
         cgbn_mem_t<BITS> operand = operands[0];
 
-        typedef cgbn_context_t<1>         context_single_t;
-        typedef cgbn_env_t<context_single_t, BITS> env_single_t;
-        context_single_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
-        env_single_t          bn_env(bn_context.env<env_single_t>());                     // construct an environment for 1024-bit math
-        env_single_t::cgbn_t  pKey, op, r, iter;                                             // define a, b, r as 1024-bit bignums
-        env_single_t::cgbn_t rMul;
+        // typedef cgbn_context_t<1>         context_single_t;
+        // typedef cgbn_env_t<context_single_t, BITS> env_single_t;
+        context_t      bn_context(cgbn_report_monitor, report, instance);   // construct a context
+        env_t          bn_env(bn_context.env<env_t>());                     // construct an environment for 1024-bit math
+        env_t::cgbn_t  pKey, op, r, iter;                                             // define a, b, r as 1024-bit bignums
+        env_t::cgbn_t rMul;
 
         cgbn_load(bn_env, pKey, &publicKey);      // load my instance's a value
         cgbn_load(bn_env, op, &operand);      // load my instance's b value
@@ -268,7 +268,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     // Launch the GPU kernel
     int block_size = 128;
     int num_blocks = (numIterations + block_size - 1) / block_size;
-    kernel_iterate<<<num_blocks, block_size>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
+    kernel_iterate<<<num_blocks, block_size * TPI>>>(report, d_publicKey, d_botKeyPairs, d_matchedKey, operationType, d_operand, numIterations, numResults, d_matchFound, d_iterCount);
 
     // Check for kernel launch errors
     cudaStatus = cudaGetLastError();
