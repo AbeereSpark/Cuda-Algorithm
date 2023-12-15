@@ -292,7 +292,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
 
     if (matchFound) {
         std::cout << std::endl << "Match found at Iteration " << iterCount << std::endl;
-        saveMatchToFile(matchFile, cgbnMemToStringCPU(iterCount), cgbnMemToStringCPU(matchedKey));
+        saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
     }
 
     return matchFound;
