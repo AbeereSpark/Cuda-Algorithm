@@ -161,6 +161,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS> alteredKey;
+    std::cout << std::endl << "Iteration Num" << instance << std::endl;
 
     if ((instance < numIterations)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
