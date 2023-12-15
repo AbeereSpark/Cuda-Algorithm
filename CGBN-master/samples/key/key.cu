@@ -137,12 +137,12 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_results, const std::vector<KeyPair
     cgbn_error_report_t *report;
 
     // Allocate memory on the GPU
-    CUDA_CHECK(cudaMalloc((void**)&d_results, 1 * sizeof(cgbn_mem_t<BITS>)));
+    CUDA_CHECK(cudaMalloc((void**)&d_results, sizeof(cgbn_mem_t<BITS>)));
     CUDA_CHECK(cudaMalloc((void**)&d_botKeyPairs, botKeyPairs.size() * sizeof(KeyPair)));
     CUDA_CHECK(cudaMalloc((void**)&d_matchFound, sizeof(bool)));
 
     // Copy data to the GPU
-    CUDA_CHECK(cudaMemcpy(d_results, h_results, 1 * sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_results, h_results, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
 
@@ -198,12 +198,12 @@ bool checkCudaAvailability() {
     return true;
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults,bool* matchFound) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, const cgbn_mem_t<BITS>* operands, int numIterations, KeyPair* botKeyPairs, int numResults, bool* matchFound) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x) ;
     cgbn_mem_t<BITS> iterationValue;
     iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS>* alteredKey;
-    cudaMalloc((void**)&alteredKey, sizeof(cgbn_mem_t<BITS>));
+    alteredKey = malloc(sizeof(cgbn_mem_t<BITS>));
 
     if ((instance < numResults)) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
