@@ -104,7 +104,7 @@ void saveMatchToFile(const std::string& matchFile, const std::string& iteration,
 }
 
 // GPU kernel for comparing results in parallel
-__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, bool* matchFound, uint32_t instance, int* iterCount) {
+__global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* results, KeyPair* botKeyPairs, int numResults, bool* matchFound, uint32_t iterInstanceCount, int* iterCount) {
     int instance = (blockIdx.x * blockDim.x + threadIdx.x )/ TPI;
 
     if ((instance < numResults) && !(*matchFound)) 
@@ -123,7 +123,7 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
 
         if (comparisonResult) {
             *matchFound = true;
-            *iterCount = instance;
+            *iterCount = iterInstanceCount;
         }
     }
     free(results);
@@ -253,8 +253,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, const std::vector<KeyPa
     CUDA_CHECK(cudaFree(d_iterCount));
 
     if (matchFound) {
-        std::cout << std::endl << "Match found at Iteration " << cgbnMemToString(iterCount) << std::endl;
-        // saveMatchToFile(matchFile, cgbnMemToString(iterCount), cgbnMemToString(publicKey));
+        std::cout << std::endl << "Match found at Iteration " << iterCount << std::endl;
     }
 
     return matchFound;
