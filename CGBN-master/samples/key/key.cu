@@ -125,6 +125,7 @@ __global__ void kernel_compare(cgbn_error_report_t *report, cgbn_mem_t<BITS>* re
             *matchFound = true;
         }
     }
+    free(results);
 }
 
 // Function to perform GPU comparison
