@@ -367,13 +367,12 @@ int main(int argc, char* argv[]) {
     // Check if the result matches any public keys in bot.txt
     bool matchResult = false;
     cgbn_mem_t<BITS> iteration;
-    set_words(iteration._limbs, "1000", BITS / 32);
+    set_words(iteration._limbs, "3e8", BITS / 32);
     
     int resultCompare;
     int iterations = 0;
     while(!matchResult) 
     {
-        // std::cout << "Iteration Count: " << iteration << std::endl;
         int lIterations = 0;
         resultCompare = compare_words(iteration._limbs, numIterations._limbs, BITS/32);
         if (resultCompare > 0) 
@@ -385,19 +384,18 @@ int main(int argc, char* argv[]) {
             sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
             lIterations = 1000;
         }
-        std::cout << std::endl << "Result Compare" << resultCompare << std::endl;
 
         matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
         memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
         std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
-
         if (resultCompare >= 0) 
         {
             std::cout << std::endl << "Breaking ............................... " << std::endl;
             break;
         }
     }
+    
 
     if (!matchResult)
     {
