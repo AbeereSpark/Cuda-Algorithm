@@ -438,7 +438,7 @@ int main(int argc, char* argv[]) {
             sub_words(originalKey._limbs, matchedKey._limbs, originalKey._limbs, BITS/32);
         }
         std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(originalKey) << std::endl;
-        divide_using_gmp(&originalKey, &operand, BITS/32);
+        divide_using_gmp(originalKey._limbs, operand._limbs, BITS/32);
         // saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
     }
     else
