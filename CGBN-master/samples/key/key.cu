@@ -374,8 +374,8 @@ int main(int argc, char* argv[]) {
     //         add_words(iteration._limbs, iteration._limbs, one._limbs, BITS/32);
     //     }
     // }
-    std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(*lastMul) << std::endl;
-    
+    std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
+
     if (!matchResult){
         std::cout << std::endl << "No Match found " << std::endl;
     }
