@@ -243,7 +243,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // char pString[100];
         // cgbnMemToStringGPU(alteredKey, pString);
         // printf("0x%s\n", pString);
-        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, originalKey, operand, iterationResult, botKeyPairs, matchedKey, numResults, matchFound, instance, iterCount);
+        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, originalKey, operands, iterationResult, botKeyPairs, matchedKey, numResults, matchFound, instance, iterCount);
     }
 }
 
