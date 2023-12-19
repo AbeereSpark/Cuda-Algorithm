@@ -248,10 +248,9 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 }
 
 // Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_lastMul, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, uint32_t numIterations, const std::string matchFile) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_matchedKey, cgbn_mem_t<BITS>* h_lastMul, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, uint32_t numIterations, const std::string matchFile) {
     bool matchFound = false;  // Variable to control the loop
     int iterCount = 0;  // Variable to control the loop
-    cgbn_mem_t<BITS> matchedKey;
 
     cgbn_mem_t<BITS>* d_publicKey;
     cgbn_mem_t<BITS>* d_operand;
@@ -303,7 +302,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_las
     // Copy back the result
     CUDA_CHECK(cudaMemcpy(&matchFound, d_matchFound, sizeof(bool), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaMemcpy(&iterCount, d_iterCount, sizeof(int), cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(&matchedKey, d_matchedKey, sizeof(cgbn_mem_t<BITS>), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(h_matchedKey, d_matchedKey, sizeof(cgbn_mem_t<BITS>), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaMemcpy(h_lastMul, d_lastMul, sizeof(cgbn_mem_t<BITS>), cudaMemcpyDeviceToHost));
 
     // Free GPU memory
@@ -313,10 +312,11 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_las
     CUDA_CHECK(cudaFree(d_matchFound));
     CUDA_CHECK(cudaFree(d_iterCount));
 
-    if (matchFound) {
-        std::cout << std::endl << "Match found at Iteration " << iterCount << std::endl;
-        saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
-    }
+    // if (matchFound) {
+    //     sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
+    //     std::cout << std::endl << "Match found at Iteration " << iterCount << std::endl;
+    //     saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
+    // }
 
     return matchFound;
 }
@@ -368,13 +368,13 @@ int main(int argc, char* argv[]) {
     // Check if the result matches any public keys in bot.txt
     bool matchResult = false;
     cgbn_mem_t<BITS> iteration;
+    cgbn_mem_t<BITS> matchedKey;
     set_words(iteration._limbs, "3e8", BITS / 32);
-    
-    int resultCompare;
+
     while(1) 
     {
         int lIterations = 0;
-        resultCompare = compare_words(iteration._limbs, numIterations._limbs, BITS/32);
+        int resultCompare = compare_words(iteration._limbs, numIterations._limbs, BITS/32);
         if (resultCompare > 0) 
         {
             lIterations = numIterations._limbs[0];
@@ -385,7 +385,7 @@ int main(int argc, char* argv[]) {
             lIterations = 1000;
         }
 
-        matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
+        matchResult = performGPUComparison(&publicKey, &matchedKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
         memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
         if (matchResult || (resultCompare >= 0) ) 
@@ -394,11 +394,15 @@ int main(int argc, char* argv[]) {
             break;
         }
     }
-    
-    std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
-    
 
-    if (!matchResult)
+    // std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
+    
+    if (matchFound) {
+        sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
+        std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(matchedKey) << std::endl;
+        // saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
+    }
+    else
     {
         std::cout << std::endl << "No Match found " << std::endl;
     }
