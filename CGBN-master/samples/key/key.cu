@@ -193,7 +193,7 @@ bool checkCudaAvailability() {
     return true;
 }
 
-__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, cgbn_mem_t<BITS>* originalKey, cgbn_mem_t<BITS>* iterationResult, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, cgbn_mem_t<BITS>* d_lastMul, char operationType, const cgbn_mem_t<BITS>* operands, uint32_t numIterations, int numResults, bool* matchFound, int* iterCount) {
+__global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* publicKeys, cgbn_mem_t<BITS>* originalKey, cgbn_mem_t<BITS>* iterationResult, KeyPair* botKeyPairs, cgbn_mem_t<BITS>* matchedKey, cgbn_mem_t<BITS>* d_lastMul, char operationType, cgbn_mem_t<BITS>* operands, uint32_t numIterations, int numResults, bool* matchFound, int* iterCount) {
     uint32_t instance = (blockIdx.x * blockDim.x + threadIdx.x);
     instance++;
     // cgbn_mem_t<BITS> iterationValue;
