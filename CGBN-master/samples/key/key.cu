@@ -397,7 +397,7 @@ int main(int argc, char* argv[]) {
 
     // std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
     
-    if (matchFound) {
+    if (matchResult) {
         sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
         std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(matchedKey) << std::endl;
         // saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
