@@ -55,4 +55,4 @@ run_add: $(TARGET)
 	ncu ./$(TARGET) $(KEY) $(operand) A $(iterations) $(INPUT_FILENAME) $(OUTPUT_FILENAME)
 
 run_sub: $(TARGET)
-	ncu ./$(TARGET) $(KEY) $(value) S $(iterations) $(INPUT_FILENAME) $(OUTPUT_FILENAME)
+	ncu ./$(TARGET) $(KEY) $(operand) S $(iterations) $(INPUT_FILENAME) $(OUTPUT_FILENAME)
