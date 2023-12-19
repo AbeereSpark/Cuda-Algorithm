@@ -134,7 +134,7 @@ void saveMatchToFile(const std::string& matchFile, const std::string& iteration,
     std::ofstream file(matchFile, std::ios::app);
     if (file.is_open()) {
         file << "Iteration Count: 0x" << iteration << std::endl;
-        file << "Matched Public Key: [" << publicKey << "]" << std::endl;
+        file << "Matched Public Key: [0x" << publicKey << "]" << std::endl;
         file.close();
     }
 }
@@ -433,9 +433,11 @@ int main(int argc, char* argv[]) {
         {
             sub_words(originalKey._limbs, matchedKey._limbs, originalKey._limbs, BITS/32);
         }
+        mpz_class result;
         std::string iterationCount = divide_using_gmp(originalKey._limbs, operand._limbs, BITS/32);
+        cgbn_to_mpz(result, matchedKey._limbs, BITS/32);
         std::cout << std::endl << "Match found at Iteration 0x" << iterationCount << std::endl;
-        saveMatchToFile(matchFile, iterationCount, cgbnMemToStringCPU(matchedKey));
+        saveMatchToFile(matchFile, iterationCount, result.get_str(16));
     }
     else
     {
@@ -445,7 +447,7 @@ int main(int argc, char* argv[]) {
     auto end_time = std::chrono::high_resolution_clock::now();  // Record the end time
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);  // Calculate the duration in milliseconds
     std::cout << std::endl << "Program duration: " << duration.count() << " milliseconds" << std::endl;
-    std::cout << std::endl << "Program duration: " << duration.count() / 1000.0 << " seconds" << std::endl;
+    std::cout << "Program duration: " << duration.count() / 1000.0 << " seconds" << std::endl;
 
 
 
