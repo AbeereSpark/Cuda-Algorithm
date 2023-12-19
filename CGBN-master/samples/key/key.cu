@@ -323,8 +323,8 @@ std::string divide_using_gmp(const uint32_t* x, const uint32_t* y, int limb_coun
 
 int main(int argc, char* argv[]) {
     
-    if (argc != 6) {
-        std::cerr << "Usage: " << argv[0] << " <public_key> <operation_value> <operation_type(A/S)> <num_iterations> <match_file>\n";
+    if (argc != 7) {
+        std::cerr << "Usage: " << argv[0] << " <public_key> <operation_value> <operation_type(A/S)> <num_iterations> <input_bot_file> <output_file>\n";
         return 1;
     }
 
