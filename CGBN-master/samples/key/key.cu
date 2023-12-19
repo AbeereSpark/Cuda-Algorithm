@@ -321,6 +321,35 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_mat
     return matchFound;
 }
 
+// Function to convert cgbn_mem_t limbs to a GMP mpz_class
+void cgbn_to_mpz(mpz_class& result, const uint32_t* limbs, int limb_count) {
+    mpz_import(result.get_mpz_t(), limb_count, -1, sizeof(uint32_t), 0, 0, limbs);
+}
+
+// Function to print a GMP mpz_class
+void print_mpz(const mpz_class& value) {
+    std::cout << value.get_str(16) << std::endl;
+}
+
+// Function to perform division using GMP
+void divide_using_gmp(const uint32_t* x, const uint32_t* m, int limb_count) {
+    mpz_class x_mpz, m_mpz, quotient_mpz, remainder_mpz;
+
+    // Convert x and m to GMP mpz_class
+    cgbn_to_mpz(x_mpz, x, limb_count);
+    cgbn_to_mpz(m_mpz, m, limb_count);
+
+    // Perform division
+    mpz_tdiv_qr(quotient_mpz.get_mpz_t(), remainder_mpz.get_mpz_t(), x_mpz.get_mpz_t(), m_mpz.get_mpz_t());
+
+    // Print the result
+    std::cout << "Quotient: ";
+    print_mpz(quotient_mpz);
+
+    std::cout << "Remainder: ";
+    print_mpz(remainder_mpz);
+}
+
 int main(int argc, char* argv[]) {
     
     if (argc != 6) {
