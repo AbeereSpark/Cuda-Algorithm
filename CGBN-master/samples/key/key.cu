@@ -133,7 +133,7 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename) {
 void saveMatchToFile(const std::string& matchFile, const std::string& iteration, const std::string& publicKey) {
     std::ofstream file(matchFile, std::ios::app);
     if (file.is_open()) {
-        file << "Iteration Count: " << iteration << std::endl;
+        file << "Iteration Count: 0x" << iteration << std::endl;
         file << "Matched Public Key: [" << publicKey << "]" << std::endl;
         file.close();
     }
@@ -433,8 +433,8 @@ int main(int argc, char* argv[]) {
         {
             sub_words(originalKey._limbs, matchedKey._limbs, originalKey._limbs, BITS/32);
         }
-        std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(originalKey) << std::endl;
         std::string iterationCount = divide_using_gmp(originalKey._limbs, operand._limbs, BITS/32);
+        std::cout << std::endl << "Match found at Iteration 0x" << iterationCount << std::endl;
         saveMatchToFile(matchFile, iterationCount, cgbnMemToStringCPU(matchedKey));
     }
     else
