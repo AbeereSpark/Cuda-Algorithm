@@ -234,10 +234,10 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // Launch the GPU kernel
         uint32_t block_size = 512;
         uint32_t num_blocks = (numResults + block_size - 1) / block_size;
-        char pString[100];
-        cgbnMemToStringGPU(alteredKey, pString);
-        printf("0x%s\n", pString);
-        // kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, matchedKey, numResults, matchFound, instance, iterCount);
+        // char pString[100];
+        // cgbnMemToStringGPU(alteredKey, pString);
+        // printf("0x%s\n", pString);
+        kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, matchedKey, numResults, matchFound, instance, iterCount);
     }
 }
 
