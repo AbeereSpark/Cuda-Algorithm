@@ -388,13 +388,14 @@ int main(int argc, char* argv[]) {
         matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
         memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
-        std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
         if (matchResult || (resultCompare >= 0) ) 
         {
             std::cout << std::endl << "Breaking ............................... " << std::endl;
             break;
         }
     }
+    
+    std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
     
 
     if (!matchResult)

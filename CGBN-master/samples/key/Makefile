@@ -11,7 +11,7 @@ CC = nvcc
 CFLAGS = -lgmp -lgmpxx
 TARGET = key
 SOURCE = key.cu
-KEY = 02b968ca5555330e4fc778efb2af7d9de81c860002dab90d247b0329c3071cc218
+KEY = 03dc2e14c81f317567ced3da0f436ead9a88c2d474fd24b264d00a68b1081e279c
 FILENAME = FOUND.txt
 
 pick:
