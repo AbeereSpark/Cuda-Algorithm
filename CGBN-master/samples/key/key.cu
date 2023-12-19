@@ -27,6 +27,18 @@ struct KeyPair {
     cgbn_mem_t<BITS> public_key;
 };
 
+void printMaxLimits() {
+    int maxBlocks, maxThreadsPerBlock;
+
+    // Get the maximum number of blocks per grid
+    cudaDeviceGetAttribute(&maxBlocks, cudaDevAttrMaxGridDimX, 0);
+    std::cout << "Maximum blocks per grid: " << maxBlocks << std::endl;
+
+    // Get the maximum number of threads per block
+    cudaDeviceGetAttribute(&maxThreadsPerBlock, cudaDevAttrMaxThreadsPerBlock, 0);
+    std::cout << "Maximum threads per block: " << maxThreadsPerBlock << std::endl;
+}
+
 // // Function to convert cgbn_mem_t limbs to a hexadecimal string
 std::string cgbnMemToStringCPU(const cgbn_mem_t<BITS>& value) {
     std::stringstream ss;
@@ -309,6 +321,7 @@ int main(int argc, char* argv[]) {
     if (checkCudaAvailability()) {
         // Perform GPU-related tasks here
         std::cout << "GPU is available. Proceed with GPU-related tasks." << std::endl;
+        printMaxLimits();
     } else {
         // Perform CPU-only tasks here
         std::cout << "No GPU available. Proceed with CPU-only tasks." << std::endl;
