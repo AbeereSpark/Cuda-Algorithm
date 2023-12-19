@@ -375,7 +375,7 @@ int main(int argc, char* argv[]) {
     {
         // std::cout << "Iteration Count: " << iteration << std::endl;
         int lIterations = 0;
-        resultCompare = compare_words(iteration.limbs, numIterations._limbs, BITS/32) 
+        resultCompare = compare_words(iteration.limbs, numIterations._limbs, BITS/32);
         if (resultCompare > 0) 
         {
             lIterations = numIterations._limbs[0];
@@ -396,8 +396,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (!matchResult){
+    if (!matchResult)
+    {
         std::cout << std::endl << "No Match found " << std::endl;
+    }
 
     auto end_time = std::chrono::high_resolution_clock::now();  // Record the end time
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);  // Calculate the duration in milliseconds
