@@ -52,7 +52,7 @@ ada:
 	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 key.cu -o key -lgmp -rdc=true
 
 run_add: $(TARGET)
-	ncu ./$(TARGET) $(KEY) $(value) A $(iterations) $(INPUT_FILENAME) $(OUTPUT_FILENAME)
+	ncu ./$(TARGET) $(KEY) $(operand) A $(iterations) $(INPUT_FILENAME) $(OUTPUT_FILENAME)
 
 run_sub: $(TARGET)
 	ncu ./$(TARGET) $(KEY) $(value) S $(iterations) $(INPUT_FILENAME) $(OUTPUT_FILENAME)
