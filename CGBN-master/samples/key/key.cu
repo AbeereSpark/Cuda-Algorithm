@@ -308,6 +308,7 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_las
 
     // Free GPU memory
     CUDA_CHECK(cudaFree(d_publicKey));
+    CUDA_CHECK(cudaFree(d_lastMul));
     CUDA_CHECK(cudaFree(d_botKeyPairs));
     CUDA_CHECK(cudaFree(d_matchFound));
     CUDA_CHECK(cudaFree(d_iterCount));
@@ -371,7 +372,7 @@ int main(int argc, char* argv[]) {
     
     int resultCompare;
     int iterations = 0;
-    while(!matchResult) 
+    while(1) 
     {
         int lIterations = 0;
         resultCompare = compare_words(iteration._limbs, numIterations._limbs, BITS/32);
@@ -389,7 +390,7 @@ int main(int argc, char* argv[]) {
         memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
         std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
-        if (resultCompare >= 0) 
+        if (matchResult || (resultCompare >= 0) ) 
         {
             std::cout << std::endl << "Breaking ............................... " << std::endl;
             break;
