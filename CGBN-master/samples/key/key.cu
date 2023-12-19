@@ -339,8 +339,10 @@ int main(int argc, char* argv[]) {
 
     // Read the public key as a string and convert to cgbn_mem_t
     cgbn_mem_t<BITS> publicKey;
+    cgbn_mem_t<BITS> originalKey;
     cgbn_mem_t<BITS> lastMul;
     set_words(publicKey._limbs, argv[1], BITS / 32);
+    set_words(originalKey._limbs, argv[1], BITS / 32);
 
     // Read the operand as a string and convert to cgbn_mem_t
     cgbn_mem_t<BITS> operand;
@@ -398,8 +400,15 @@ int main(int argc, char* argv[]) {
     // std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
     
     if (matchResult) {
-        sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
-        std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(matchedKey) << std::endl;
+        if (compare_words(originalKey._limbs, matchedKey._limbs, BITS/32) > 0)
+        {
+            sub_words(originalKey._limbs, originalKey._limbs, matchedKey._limbs, BITS/32);
+        }
+        else
+        {
+            sub_words(originalKey._limbs, matchedKey._limbs, originalKey._limbs, BITS/32);
+        }
+        std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(originalKey) << std::endl;
         // saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
     }
     else
