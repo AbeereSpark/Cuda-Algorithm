@@ -371,7 +371,6 @@ int main(int argc, char* argv[]) {
     set_words(iteration._limbs, "3e8", BITS / 32);
     
     int resultCompare;
-    int iterations = 0;
     while(1) 
     {
         int lIterations = 0;
