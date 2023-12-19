@@ -200,7 +200,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
     // iterationValue._limbs[0] = instance;
     cgbn_mem_t<BITS> alteredKey;
 
-    if (((instance < numIterations) && !(*matchFound))) {
+    if (((instance <= numIterations) && !(*matchFound))) {
         cgbn_mem_t<BITS> publicKey = publicKeys[0];
         cgbn_mem_t<BITS> operand = operands[0];
 
