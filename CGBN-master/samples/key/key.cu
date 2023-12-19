@@ -265,7 +265,6 @@ bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_mat
     CUDA_CHECK(cudaMemcpy(d_operand, h_operand, sizeof(cgbn_mem_t<BITS>), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_botKeyPairs, botKeyPairs.data(), botKeyPairs.size() * sizeof(KeyPair), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_matchFound, &matchFound, sizeof(bool), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_iterCount, &iterCount, sizeof(int), cudaMemcpyHostToDevice));
 
     // create a cgbn_error_report for CGBN to report back errors
     CUDA_CHECK(cgbn_error_report_alloc(&report)); 
