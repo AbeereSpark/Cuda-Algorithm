@@ -36,7 +36,7 @@ void printMaxLimits() {
 
     // Get the maximum number of threads per block
     cudaDeviceGetAttribute(&maxThreadsPerBlock, cudaDevAttrMaxThreadsPerBlock, 0);
-    std::cout << "Maximum threads per block: " << maxThreadsPerBlock << std::endl;
+    std::cout << "Maximum threads per block: " << maxThreadsPerBlock << std::endl << std::endl;
 }
 
 // // Function to convert cgbn_mem_t limbs to a hexadecimal string
@@ -178,7 +178,7 @@ bool checkCudaAvailability() {
         return false;
     }
 
-    std::cout << "Found " << deviceCount << " CUDA-enabled GPU device(s)." << std::endl;
+    std::cout << std::endl << "Found " << deviceCount << " CUDA-enabled GPU device(s)." << std::endl;
 
     // You can also print more information about each device if needed
     for (int i = 0; i < deviceCount; ++i) {
@@ -186,7 +186,6 @@ bool checkCudaAvailability() {
         cudaGetDeviceProperties(&deviceProp, i);
 
         std::cout << "Device " << i << ": " << deviceProp.name << std::endl;
-        // Print more properties if needed
     }
 
     return true;
