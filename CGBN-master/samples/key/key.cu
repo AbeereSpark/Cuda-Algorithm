@@ -245,10 +245,6 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         // printf("0x%s\n", pString);
         kernel_compare<<<num_blocks, block_size * TPI>>>(report, alteredKey, botKeyPairs, matchedKey, numResults, matchFound, instance, iterCount);
     }
-    else
-    {
-        printf("not runnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
-    }
 }
 
 // Function to perform GPU comparison
@@ -370,21 +366,38 @@ int main(int argc, char* argv[]) {
 
     // Check if the result matches any public keys in bot.txt
     bool matchResult = false;
+    cgbn_mem_t<BITS> iteration;
+    set_words(iteration._limbs, "1000", BITS / 32);
     
-    // for (int iteration = 1; iteration <= numIterations && !matchResult; ++iteration) 
-    // {
-    //     std::cout << "Iteration Count: " << iteration << std::endl;
-        matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, numIterations._limbs[0], matchFile);
+    int resultCompare;
+    int iterations = 0;
+    while(!matchResult) 
+    {
+        // std::cout << "Iteration Count: " << iteration << std::endl;
+        int lIterations = 0;
+        resultCompare = compare_words(iteration.limbs, numIterations._limbs, BITS/32) 
+        if (resultCompare > 0) 
+        {
+            lIterations = numIterations._limbs[0];
+        }
+        else
+        {
+            lIterations = 1000;
+        }
+        matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
+        memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
-    //     if (!matchResult){
-    //         add_words(iteration._limbs, iteration._limbs, one._limbs, BITS/32);
-    //     }
-    // }
-    std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
+        std::cout << std::endl << "Last Mul: " << cgbnMemToStringCPU(lastMul) << std::endl;
+
+        if (resultCompare >= 0) 
+        {
+            std::cout << std::endl << "Breaking ............................... " << std::endl;
+            break;
+        }
+    }
 
     if (!matchResult){
         std::cout << std::endl << "No Match found " << std::endl;
-    }
 
     auto end_time = std::chrono::high_resolution_clock::now();  // Record the end time
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);  // Calculate the duration in milliseconds
