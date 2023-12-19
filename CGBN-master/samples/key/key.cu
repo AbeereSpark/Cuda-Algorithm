@@ -331,23 +331,19 @@ void print_mpz(const mpz_class& value) {
     std::cout << value.get_str(16) << std::endl;
 }
 
-// Function to perform division using GMP
-void divide_using_gmp(const uint32_t* x, const uint32_t* m, int limb_count) {
-    mpz_class x_mpz, m_mpz, quotient_mpz, remainder_mpz;
+// Function to perform division using GMP and return the quotient as a string
+std::string divide_using_gmp(const uint32_t* x, const uint32_t* y, int limb_count) {
+    mpz_class x_mpz, y_mpz, quotient_mpz, remainder_mpz;
 
     // Convert x and m to GMP mpz_class
     cgbn_to_mpz(x_mpz, x, limb_count);
-    cgbn_to_mpz(m_mpz, m, limb_count);
+    cgbn_to_mpz(y_mpz, y, limb_count);
 
     // Perform division
-    mpz_tdiv_qr(quotient_mpz.get_mpz_t(), remainder_mpz.get_mpz_t(), x_mpz.get_mpz_t(), m_mpz.get_mpz_t());
+    mpz_tdiv_qr(quotient_mpz.get_mpz_t(), remainder_mpz.get_mpz_t(), x_mpz.get_mpz_t(), y_mpz.get_mpz_t());
 
-    // Print the result
-    std::cout << "Quotient: ";
-    print_mpz(quotient_mpz);
-
-    std::cout << "Remainder: ";
-    print_mpz(remainder_mpz);
+    // Return the quotient as a string
+    return quotient_mpz.get_str(16);
 }
 
 int main(int argc, char* argv[]) {
@@ -438,8 +434,8 @@ int main(int argc, char* argv[]) {
             sub_words(originalKey._limbs, matchedKey._limbs, originalKey._limbs, BITS/32);
         }
         std::cout << std::endl << "Match found at Iteration " << cgbnMemToStringCPU(originalKey) << std::endl;
-        divide_using_gmp(originalKey._limbs, operand._limbs, BITS/32);
-        // saveMatchToFile(matchFile, std::to_string(iterCount), cgbnMemToStringCPU(matchedKey));
+        std::string iterationCount = divide_using_gmp(originalKey._limbs, operand._limbs, BITS/32);
+        saveMatchToFile(matchFile, iterationCount, cgbnMemToStringCPU(matchedKey));
     }
     else
     {
