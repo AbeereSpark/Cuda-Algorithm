@@ -375,13 +375,14 @@ int main(int argc, char* argv[]) {
     {
         // std::cout << "Iteration Count: " << iteration << std::endl;
         int lIterations = 0;
-        resultCompare = compare_words(iteration.limbs, numIterations._limbs, BITS/32);
+        resultCompare = compare_words(iteration._limbs, numIterations._limbs, BITS/32);
         if (resultCompare > 0) 
         {
             lIterations = numIterations._limbs[0];
         }
         else
         {
+            sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
             lIterations = 1000;
         }
         matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
