@@ -229,10 +229,11 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
         }    
 
         cgbn_store(bn_env, &alteredKey, r);   
-        if (instance >= 999)
-        {
-            cgbn_store(bn_env, d_lastMul, r);
-        }       
+
+        // if (instance >= 999)
+        // {
+        //     cgbn_store(bn_env, d_lastMul, r);
+        // }       
 
         // Now, launch the compare kernel to check for matches
         // Launch the GPU kernel
