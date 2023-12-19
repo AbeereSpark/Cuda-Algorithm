@@ -130,8 +130,8 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename) {
 
 
 // Helper function to save the matched public key, iteration count, and result to a file
-void saveMatchToFile(const std::string& matchFile, const std::string& iteration, const std::string& publicKey) {
-    std::ofstream file(matchFile, std::ios::app);
+void saveMatchToFile(const std::string& outputFile, const std::string& iteration, const std::string& publicKey) {
+    std::ofstream file(outputFile, std::ios::app);
     if (file.is_open()) {
         file << "Iteration Count: 0x" << iteration << std::endl;
         file << "Matched Public Key: [0x" << publicKey << "]" << std::endl;
@@ -240,7 +240,7 @@ __global__ void kernel_iterate(cgbn_error_report_t *report, cgbn_mem_t<BITS>* pu
 }
 
 // Function to perform GPU comparison
-bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_matchedKey, cgbn_mem_t<BITS>* h_lastMul, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, uint32_t numIterations, const std::string matchFile) {
+bool performGPUComparison(cgbn_mem_t<BITS>* h_publicKey, cgbn_mem_t<BITS>* h_matchedKey, cgbn_mem_t<BITS>* h_lastMul, const std::vector<KeyPair>& botKeyPairs, char operationType, cgbn_mem_t<BITS>* h_operand, uint32_t numIterations) {
     bool matchFound = false; 
 
     cgbn_mem_t<BITS>* d_publicKey;
@@ -355,7 +355,7 @@ int main(int argc, char* argv[]) {
     uint64_t numIterationsInt = 0;
     memcpy(&numIterationsInt, numIterations._limbs, sizeof(uint64_t));
 
-    const std::string matchFile = argv[5];
+    const std::string outputFile = argv[5];
 
     std::cout << "Entered public key: 0x" << argv[1] << std::endl;
     std::cout << "Entered operand: 0x" << argv[2] << std::endl << std::endl;
@@ -387,7 +387,7 @@ int main(int argc, char* argv[]) {
             lIterations = 1000;
         }
 
-        matchResult = performGPUComparison(&publicKey, &matchedKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
+        matchResult = performGPUComparison(&publicKey, &matchedKey, &lastMul, botKeyPairs, operationType, &operand, lIterations);
         memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
         if (matchResult || (resultCompare >= 0) ) 
@@ -412,7 +412,7 @@ int main(int argc, char* argv[]) {
         std::string iterationCount = divide_using_gmp(originalKey._limbs, operand._limbs, BITS/32);
         cgbn_to_mpz(result, matchedKey._limbs, BITS/32);
         std::cout << std::endl << "Match found at Iteration 0x" << iterationCount << std::endl;
-        saveMatchToFile(matchFile, iterationCount, result.get_str(16));
+        saveMatchToFile(outputFile, iterationCount, result.get_str(16));
     }
     else
     {
