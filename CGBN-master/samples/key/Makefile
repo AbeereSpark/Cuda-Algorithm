@@ -12,7 +12,8 @@ CFLAGS = -lgmp -lgmpxx
 TARGET = key
 SOURCE = key.cu
 KEY = 03dc2e14c81f317567ced3da0f436ead9a88c2d474fd24b264d00a68b10820279c
-FILENAME = FOUND.txt
+FILENAME = found.txt
+INPUT_FILENAME = bot.txt
 
 pick:
 	@echo
@@ -51,7 +52,7 @@ ada:
 	nvcc $(INC) $(LIB) -I../../include -arch=sm_89 key.cu -o key -lgmp -rdc=true
 
 run_add: $(TARGET)
-	ncu ./$(TARGET) $(KEY) $(value) A $(ITERATIONS) $(FILENAME)
+	ncu ./$(TARGET) $(KEY) $(value) A $(ITERATIONS) $(INPUT_FILENAME) $(FILENAME)
 
 run_sub: $(TARGET)
-	ncu ./$(TARGET) $(KEY) $(value) S $(ITERATIONS) $(FILENAME)
+	ncu ./$(TARGET) $(KEY) $(value) S $(ITERATIONS) $(INPUT_FILENAME) $(FILENAME)

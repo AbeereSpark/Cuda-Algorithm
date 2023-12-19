@@ -85,9 +85,9 @@ void performOperation(cgbn_mem_t<BITS>& publicKey, cgbn_mem_t<BITS>& operand, ch
 }
 
 // Helper function to read key pairs from a file
-std::vector<KeyPair> readKeyPairs(const std::string& filename) {
+std::vector<KeyPair> readKeyPairs(const std::string& fileName) {
     std::vector<KeyPair> keyPairs;
-    std::ifstream file(filename);
+    std::ifstream file(fileName);
 
     if (file.is_open()) {
         std::string line;
@@ -130,8 +130,8 @@ std::vector<KeyPair> readKeyPairs(const std::string& filename) {
 
 
 // Helper function to save the matched public key, iteration count, and result to a file
-void saveMatchToFile(const std::string& outputFile, const std::string& iteration, const std::string& publicKey) {
-    std::ofstream file(outputFile, std::ios::app);
+void saveMatchToFile(const std::string& fileName, const std::string& iteration, const std::string& publicKey) {
+    std::ofstream file(fileName, std::ios::app);
     if (file.is_open()) {
         file << "Iteration Count: 0x" << iteration << std::endl;
         file << "Matched Public Key: [0x" << publicKey << "]" << std::endl;
@@ -355,7 +355,8 @@ int main(int argc, char* argv[]) {
     uint64_t numIterationsInt = 0;
     memcpy(&numIterationsInt, numIterations._limbs, sizeof(uint64_t));
 
-    const std::string outputFile = argv[5];
+    const std::string inputBotFile = argv[5];
+    const std::string outputFile = argv[6];
 
     std::cout << "Entered public key: 0x" << argv[1] << std::endl;
     std::cout << "Entered operand: 0x" << argv[2] << std::endl << std::endl;
@@ -363,7 +364,7 @@ int main(int argc, char* argv[]) {
     auto start_time = std::chrono::high_resolution_clock::now();  // Record the start time
 
     // Read key pairs from bot.txt
-    std::vector<KeyPair> botKeyPairs = readKeyPairs("bot.txt");
+    std::vector<KeyPair> botKeyPairs = readKeyPairs(inputBotFile);
 
     // performOperation(publicKey, operand, operationType);
 
