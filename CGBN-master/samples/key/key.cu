@@ -385,6 +385,8 @@ int main(int argc, char* argv[]) {
             sub_words(numIterations._limbs, numIterations._limbs, iteration._limbs, BITS/32);
             lIterations = 1000;
         }
+        std::cout << std::endl << "Result Compare" << resultCompare << std::endl;
+
         matchResult = performGPUComparison(&publicKey, &lastMul, botKeyPairs, operationType, &operand, lIterations, matchFile);
         memcpy(&publicKey, &lastMul, sizeof(cgbn_mem_t<BITS>));
 
